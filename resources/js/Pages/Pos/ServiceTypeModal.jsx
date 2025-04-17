@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ServiceTypeModal = ({ onClose, onSelect, currentType }) => {
+const ServiceTypeModal = ({ isOpen, onClose, onSelect, currentType }) => {
     const serviceTypes = [
         {
             id: 'eat_in',
@@ -31,6 +31,8 @@ const ServiceTypeModal = ({ onClose, onSelect, currentType }) => {
             )
         }
     ];
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -5,6 +5,9 @@ import Calculator from './Calculator';
 import ServiceTypeModal from './ServiceTypeModal';
 import NoteModal from './NoteModal';
 import Receipt from './Receipt';
+import PromotionModal from './PromotionModal';
+import CustomizeModal from './CustomizeModal';
+import PaymentModal from './PaymentModal';
 
 const PosIndex = ({ auth }) => {
     // Static Categories Data
@@ -216,6 +219,12 @@ const PosIndex = ({ auth }) => {
     const [showServiceTypeModal, setShowServiceTypeModal] = useState(false);
     const [deliverySurcharge, setDeliverySurcharge] = useState(0);
     const [showNoteModal, setShowNoteModal] = useState(false);
+    const [showPromotionModal, setShowPromotionModal] = useState(false);
+    const [showCustomizeModal, setShowCustomizeModal] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [activePromotion, setActivePromotion] = useState(null);
+    const [customizations, setCustomizations] = useState({});
 
     useEffect(() => {
         calculateTotals();
@@ -242,11 +251,21 @@ const PosIndex = ({ auth }) => {
     );
 
     const calculateTotals = () => {
-        const newSubtotal = cart.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+        const newSubtotal = cart.reduce((sum, item) => {
+            let itemTotal = item.quantity * item.unit_price;
+            
+            // Add customization charges
+            if (customizations[item.product_id]) {
+                itemTotal += customizations[item.product_id].extraCharge * item.quantity;
+            }
+            
+            return sum + itemTotal;
+        }, 0);
+
         const newTax = newSubtotal * 0.20; // 20% tax
         let newTotal = newSubtotal + newTax;
         
-        // Add 10% delivery surcharge if delivery is selected
+        // Add delivery surcharge if delivery is selected
         if (orderType === 'delivery') {
             const surcharge = newSubtotal * 0.10;
             setDeliverySurcharge(surcharge);
@@ -255,16 +274,26 @@ const PosIndex = ({ auth }) => {
             setDeliverySurcharge(0);
         }
 
+        // Apply promotion discount if active
+        if (activePromotion) {
+            newTotal -= activePromotion.discountAmount;
+        }
+
         setSubtotal(newSubtotal);
         setTax(newTax);
         setTotal(newTotal);
     };
 
-    const addToCart = (product) => {
-        const existingItem = cart.find(item => item.product_id === product.id);
+    const addToCart = (product, customizations = null) => {
+        const existingItem = cart.find(item => 
+            item.product_id === product.id && 
+            JSON.stringify(item.customizations) === JSON.stringify(customizations)
+        );
+
         if (existingItem) {
             setCart(cart.map(item =>
-                item.product_id === product.id
+                item.product_id === product.id && 
+                JSON.stringify(item.customizations) === JSON.stringify(customizations)
                     ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.unit_price }
                     : item
             ));
@@ -276,7 +305,8 @@ const PosIndex = ({ auth }) => {
                 image: product.image,
                 quantity: 1,
                 unit_price: product.price,
-                subtotal: product.price
+                subtotal: product.price,
+                customizations: customizations
             }]);
         }
     };
@@ -294,13 +324,12 @@ const PosIndex = ({ auth }) => {
         ));
     };
 
-    const handlePaymentAmount = (amount) => {
+    const handlePayment = (payment) => {
+        // Set the payment amount from the payment details
+        const amount = payment.method === 'cash' ? payment.details.amount : total;
         setPaymentAmount(amount);
-        setChange(amount - total);
-    };
-
-    const handlePayment = () => {
-        if (paymentAmount < total) {
+        
+        if (amount < total) {
             alert('Payment amount must be greater than or equal to total amount');
             return;
         }
@@ -308,7 +337,10 @@ const PosIndex = ({ auth }) => {
         try {
             const newOrder = {
                 id: `ORD-${String(orderNumber).padStart(4, '0')}`,
-                items: cart,
+                items: cart.map(item => ({
+                    ...item,
+                    customizations: customizations[item.product_id]
+                })),
                 type: orderType,
                 table_number: tableNumber,
                 notes,
@@ -322,9 +354,11 @@ const PosIndex = ({ auth }) => {
                     drinks: drinksCount
                 },
                 payment: {
-                    amount: paymentAmount,
-                    change: change
-                }
+                    method: payment.method,
+                    details: payment.details,
+                    amount: amount
+                },
+                promotion: activePromotion
             };
 
             // Generate and download receipt
@@ -340,6 +374,8 @@ const PosIndex = ({ auth }) => {
             setShowCalculator(false);
             setPaymentAmount(0);
             setChange(0);
+            setActivePromotion(null);
+            setCustomizations({});
         } catch (error) {
             console.error('Error processing payment:', error);
             alert('There was an error processing the payment. Please try again.');
@@ -357,6 +393,18 @@ const PosIndex = ({ auth }) => {
     const handleServiceTypeSelect = (type) => {
         setOrderType(type);
         setShowServiceTypeModal(false);
+    };
+
+    const handlePromotionApply = (promotion) => {
+        setActivePromotion(promotion);
+        calculateTotals();
+    };
+
+    const handleCustomize = (product, customizations) => {
+        if (customizations) {
+            addToCart(product, customizations);
+        }
+        setShowCustomizeModal(false);
     };
 
     return (
@@ -421,6 +469,22 @@ const PosIndex = ({ auth }) => {
                                                 {item.description && (
                                                     <div className="text-sm text-gray-600 italic mt-0.5">- {item.description}</div>
                                                 )}
+                                                {customizations[item.product_id] && (
+                                                    <div className="text-sm text-purple-600 mt-1">
+                                                        {Object.entries(customizations[item.product_id].options).map(([category, selection]) => (
+                                                            <div key={category}>
+                                                                {Array.isArray(selection) 
+                                                                    ? selection.map(opt => `• ${opt.name || opt}`).join(', ')
+                                                                    : `• ${selection.name || selection}`}
+                                                            </div>
+                                                        ))}
+                                                        {customizations[item.product_id].instructions && (
+                                                            <div className="text-gray-600 italic">
+                                                                Note: {customizations[item.product_id].instructions}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                                 <div className="text-sm text-gray-500 mt-0.5">
                                                     {item.unit_price.toFixed(2)} DH / Unité(s)
                                                 </div>
@@ -461,6 +525,12 @@ const PosIndex = ({ auth }) => {
                                     <span>{deliverySurcharge.toFixed(2)} DH</span>
                                 </div>
                             )}
+                            {activePromotion && (
+                                <div className="flex justify-between text-green-600">
+                                    <span>{activePromotion.name}</span>
+                                    <span>-{activePromotion.discountAmount.toFixed(2)} DH</span>
+                                </div>
+                            )}
                             <div className="h-px bg-gray-200 my-2"></div>
                             <div className="flex justify-between text-lg font-bold text-purple-900">
                                 <span>Total</span>
@@ -471,7 +541,7 @@ const PosIndex = ({ auth }) => {
 
                     {/* Bottom Navigation */}
                     <div className="border-t border-gray-200">
-                        <div className="grid grid-cols-2 divide-x divide-gray-200">
+                        <div className="grid grid-cols-4 divide-x divide-gray-200">
                             <button 
                                 className={`p-4 text-center transition-colors duration-150 ${
                                     notes ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'
@@ -498,63 +568,44 @@ const PosIndex = ({ auth }) => {
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                                             </svg>
-                                            <span>Eat In</span>
-                                        </>
-                                    ) : orderType === 'takeout' ? (
-                                        <>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
-                                            </svg>
-                                            <span>Takeout</span>
+                                            Eat In
                                         </>
                                     ) : (
                                         <>
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
                                             </svg>
-                                            <span>Delivery</span>
+                                            {orderType === 'takeout' ? 'Takeout' : 'Delivery'}
                                         </>
                                     )}
                                 </div>
                             </button>
-                        </div>
-
-                        {/* Command Summary and Payment Button */}
-                        <div className="bg-purple-900 text-white p-4">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-300">Food Items:</span>
-                                        <span className="bg-white text-purple-900 px-2 py-0.5 rounded-full font-medium">{foodCount}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-300">Drinks:</span>
-                                        <span className="bg-white text-purple-900 px-2 py-0.5 rounded-full font-medium">{drinksCount}</span>
-                                    </div>
+                            <button 
+                                className={`p-4 text-center transition-colors duration-150 ${
+                                    activePromotion ? 'bg-green-50 text-green-600' : 'hover:bg-gray-50'
+                                }`}
+                                onClick={() => setShowPromotionModal(true)}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zm7-10a1 1 0 01.707.293l.707.707L15.414 5a1 1 0 01-1.414 1.414L13 5.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707-.707-.707A1 1 0 0112 2zm0 10a1 1 0 01.707.293l.707.707L15.414 15a1 1 0 01-1.414 1.414L13 15.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707-.707-.707A1 1 0 0112 12z" clipRule="evenodd" />
+                                    </svg>
+                                    {activePromotion ? 'Promotion Applied ✓' : 'Add Promotion'}
                                 </div>
-                                <button
-                                    onClick={() => setShowCalculator(true)}
-                                    disabled={cart.length === 0}
-                                    className={`relative group overflow-hidden px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                                        cart.length === 0 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl'
-                                    }`}
-                                >
-                                    <div className="relative flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                        </svg>
-                                        <span>Process Payment</span>
-                                    </div>
-                                </button>
-                            </div>
-                            {notes && (
-                                <div className="mt-2 p-2 bg-purple-800 rounded-lg">
-                                    <div className="text-sm text-gray-300 mb-1">Note:</div>
-                                    <div className="text-sm">{notes}</div>
+                            </button>
+                            <button 
+                                className="p-4 text-center transition-colors duration-150 bg-purple-600 text-white hover:bg-purple-700"
+                                onClick={() => setShowPaymentModal(true)}
+                                disabled={cart.length === 0}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                                        <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                                    </svg>
+                                    Payment
                                 </div>
-                            )}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -643,153 +694,78 @@ const PosIndex = ({ auth }) => {
                     <div className="flex-1 p-4 overflow-auto bg-gray-100">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filteredProducts.map((product) => (
-                                <button
+                                <div
                                     key={product.id}
-                                    onClick={() => addToCart(product)}
-                                    className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-left relative overflow-hidden flex flex-col group transform hover:-translate-y-1"
+                                    onClick={() => {
+                                        setSelectedProduct(product);
+                                        setShowCustomizeModal(true);
+                                    }}
+                                    className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-200"
                                 >
-                                    {/* Product Image */}
-                                    <div className="w-full h-40 relative overflow-hidden">
+                                    <div className="relative h-40">
                                         <img
                                             src={product.image}
                                             alt={product.name}
-                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-200"
+                                            className="w-full h-full object-cover"
                                             onError={(e) => {
                                                 e.target.src = 'https://via.placeholder.com/150?text=No+Image';
                                             }}
                                         />
-                                        <div className="absolute top-2 right-2">
-                                            {product.category_id === 1 ? (
-                                                <span className="bg-pink-100 text-pink-800 text-xs px-3 py-1 rounded-full font-medium shadow-sm">
-                                                    Food
-                                                </span>
-                                            ) : (
-                                                <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium shadow-sm">
-                                                    Drink
-                                                </span>
-                                            )}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-white text-gray-800 shadow-sm">
+                                                {categories.find(c => c.id === product.category_id)?.name}
+                                            </span>
                                         </div>
                                     </div>
-
-                                    {/* Product Info */}
                                     <div className="p-4">
-                                        <h3 className="font-medium text-gray-900 text-lg mb-1">{product.name}</h3>
-                                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">{product.description}</p>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-purple-600 font-semibold text-lg">{product.price.toFixed(2)} DH</p>
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                <span className="bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full">
-                                                    Add to cart
-                                                </span>
-                                            </div>
+                                        <h3 className="font-medium text-gray-900">{product.name}</h3>
+                                        <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                                        <div className="mt-2 text-lg font-semibold text-purple-600">
+                                            {product.price.toFixed(2)} DH
                                         </div>
                                     </div>
-                                </button>
+                                </div>
                             ))}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Service Type Modal */}
-            {showServiceTypeModal && (
-                <ServiceTypeModal
-                    onClose={() => setShowServiceTypeModal(false)}
-                    onSelect={handleServiceTypeSelect}
-                    currentType={orderType}
-                />
-            )}
+            {/* Modals */}
+            <ServiceTypeModal
+                isOpen={showServiceTypeModal}
+                onClose={() => setShowServiceTypeModal(false)}
+                onSelect={handleServiceTypeSelect}
+                currentType={orderType}
+            />
 
-            {/* Note Modal */}
-            {showNoteModal && (
-                <NoteModal
-                    onClose={() => setShowNoteModal(false)}
-                    onSave={(note) => setNotes(note)}
-                    currentNote={notes}
-                />
-            )}
+            <NoteModal
+                isOpen={showNoteModal}
+                onClose={() => setShowNoteModal(false)}
+                onSave={setNotes}
+                initialNote={notes}
+            />
 
-            {/* Payment Modal */}
-            {showCalculator && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl w-96 max-w-full mx-4 transform transition-all duration-300 scale-100 opacity-100">
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-gray-200">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-semibold text-gray-900">Payment Details</h3>
-                                <button
-                                    onClick={() => setShowCalculator(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center text-gray-600">
-                                    <span>Subtotal</span>
-                                    <span>{subtotal.toFixed(2)} DH</span>
-                                </div>
-                                <div className="flex justify-between items-center text-gray-600">
-                                    <span>TVA (20%)</span>
-                                    <span>{tax.toFixed(2)} DH</span>
-                                </div>
-                                {deliverySurcharge > 0 && (
-                                    <div className="flex justify-between items-center text-gray-600">
-                                        <span>Delivery Fee (10%)</span>
-                                        <span>{deliverySurcharge.toFixed(2)} DH</span>
-                                    </div>
-                                )}
-                                <div className="h-px bg-gray-200"></div>
-                                <div className="flex justify-between items-center text-lg font-bold text-gray-900">
-                                    <span>Total Due</span>
-                                    <span>{total.toFixed(2)} DH</span>
-                                </div>
-                                <div className="flex justify-between items-center text-blue-600">
-                                    <span>Amount Paid</span>
-                                    <span>{paymentAmount.toFixed(2)} DH</span>
-                                </div>
-                                <div className="flex justify-between items-center text-green-600 font-medium">
-                                    <span>Change</span>
-                                    <span>{Math.max(0, change).toFixed(2)} DH</span>
-                                </div>
-                            </div>
-                        </div>
+            <PromotionModal
+                isOpen={showPromotionModal}
+                onClose={() => setShowPromotionModal(false)}
+                onApply={handlePromotionApply}
+                subtotal={subtotal}
+            />
 
-                        {/* Calculator */}
-                        <div className="p-6">
-                            <Calculator onAmountSubmit={handlePaymentAmount} />
-                        </div>
+            <CustomizeModal
+                isOpen={showCustomizeModal}
+                onClose={() => setShowCustomizeModal(false)}
+                onApply={handleCustomize}
+                product={selectedProduct}
+            />
 
-                        {/* Action Buttons */}
-                        <div className="p-6 bg-gray-50 rounded-b-2xl border-t border-gray-200">
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setShowCalculator(false)}
-                                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handlePayment}
-                                    disabled={paymentAmount < total || cart.length === 0}
-                                    className={`flex-1 px-4 py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                                        paymentAmount >= total && cart.length > 0
-                                            ? 'bg-green-500 hover:bg-green-600 text-white'
-                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }`}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Confirm Payment
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <PaymentModal
+                isOpen={showPaymentModal}
+                onClose={() => setShowPaymentModal(false)}
+                onComplete={handlePayment}
+                total={total}
+            />
         </AuthenticatedLayout>
     );
 };
