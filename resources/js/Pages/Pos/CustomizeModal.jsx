@@ -2,58 +2,451 @@ import React, { useState } from 'react';
 
 const CustomizeModal = ({ isOpen, onClose, onApply, product }) => {
     const [selectedOptions, setSelectedOptions] = useState({});
-    const [specialInstructions, setSpecialInstructions] = useState('');
 
-    // Define customization options based on product category
-    const customizationOptions = {
-        food: [
-            {
-                name: 'Cooking Preference',
-                type: 'single',
-                options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
-            },
-            {
-                name: 'Add Extra',
-                type: 'multiple',
-                options: [
-                    { name: 'Extra Cheese', price: 5 },
-                    { name: 'Extra Bacon', price: 8 },
-                    { name: 'Extra Sauce', price: 3 },
-                    { name: 'Extra Patty', price: 15 }
-                ]
-            },
-            {
-                name: 'Remove',
-                type: 'multiple',
-                options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
-            }
-        ],
-        drinks: [
-            {
-                name: 'Size',
-                type: 'single',
-                options: [
-                    { name: 'Small', price: -3 },
-                    { name: 'Regular', price: 0 },
-                    { name: 'Large', price: 5 }
-                ]
-            },
-            {
-                name: 'Ice Level',
-                type: 'single',
-                options: ['No Ice', 'Light Ice', 'Regular Ice', 'Extra Ice']
-            },
-            {
-                name: 'Add-ons',
-                type: 'multiple',
-                options: [
-                    { name: 'Extra Shot', price: 5 },
-                    { name: 'Whipped Cream', price: 3 },
-                    { name: 'Caramel Syrup', price: 3 },
-                    { name: 'Chocolate Syrup', price: 3 }
-                ]
-            }
-        ]
+    // Define product-specific customization options
+    const getProductCustomizations = (product) => {
+        const customizations = {
+            // Food items
+            'Bacon Burger': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Bacon', price: 8 },
+                        { name: 'Extra Patty', price: 15 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'Burger Menu Combo': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Bacon', price: 8 },
+                        { name: 'Extra Patty', price: 15 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'Cheese Burger': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Bacon', price: 8 },
+                        { name: 'Extra Patty', price: 15 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'Chicken Curry Sandwich': [
+                {
+                    name: 'Spice Level',
+                    type: 'single',
+                    options: ['Mild', 'Medium', 'Hot', 'Extra Hot']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Chicken', price: 12 },
+                        { name: 'Extra Sauce', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Mayo']
+                }
+            ],
+            'Club Sandwich': [
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Bacon', price: 8 },
+                        { name: 'Extra Chicken', price: 12 },
+                        { name: 'Extra Cheese', price: 5 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Mayo']
+                }
+            ],
+            'Double Cheeseburger': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Patty', price: 15 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'Big Tasty': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Patty', price: 15 },
+                        { name: 'Extra Sauce', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'Big Chili': [
+                {
+                    name: 'Spice Level',
+                    type: 'single',
+                    options: ['Mild', 'Medium', 'Hot', 'Extra Hot']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Patty', price: 15 },
+                        { name: 'Extra Chili Sauce', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            'McChicken': [
+                {
+                    name: 'Spice Level',
+                    type: 'single',
+                    options: ['Mild', 'Medium', 'Hot']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Chicken', price: 12 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Mayo']
+                }
+            ],
+            'Filet-O-Fish': [
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Fish', price: 12 },
+                        { name: 'Extra Tartar Sauce', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Lettuce', 'Tartar Sauce']
+                }
+            ],
+            'Big Mac': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Patty', price: 15 },
+                        { name: 'Extra Sauce', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles', 'Special Sauce']
+                }
+            ],
+            'Triple Cheese': [
+                {
+                    name: 'Cooking Preference',
+                    type: 'single',
+                    options: ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+                },
+                {
+                    name: 'Add Extra',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Cheese', price: 5 },
+                        { name: 'Extra Patty', price: 15 }
+                    ]
+                },
+                {
+                    name: 'Remove',
+                    type: 'multiple',
+                    options: ['Onions', 'Tomatoes', 'Lettuce', 'Pickles']
+                }
+            ],
+            // Drink items
+            'Coca Cola': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -3 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 5 }
+                    ]
+                },
+                {
+                    name: 'Ice Level',
+                    type: 'single',
+                    options: ['No Ice', 'Light Ice', 'Regular Ice', 'Extra Ice']
+                }
+            ],
+            'Fanta': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -3 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 5 }
+                    ]
+                },
+                {
+                    name: 'Ice Level',
+                    type: 'single',
+                    options: ['No Ice', 'Light Ice', 'Regular Ice', 'Extra Ice']
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Fizz', price: 2 }
+                    ]
+                }
+            ],
+            'Strawberry Milkshake': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -5 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 8 }
+                    ]
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Whipped Cream', price: 3 },
+                        { name: 'Extra Strawberries', price: 5 },
+                        { name: 'Extra Ice Cream', price: 4 }
+                    ]
+                },
+                {
+                    name: 'Topping',
+                    type: 'single',
+                    options: [
+                        { name: 'No Topping', price: 0 },
+                        { name: 'Strawberry Sauce', price: 3 },
+                        { name: 'Chocolate Sauce', price: 3 }
+                    ]
+                }
+            ],
+            'Oreo Milkshake': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -5 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 8 }
+                    ]
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Whipped Cream', price: 3 },
+                        { name: 'Extra Oreos', price: 5 },
+                        { name: 'Extra Ice Cream', price: 4 }
+                    ]
+                },
+                {
+                    name: 'Topping',
+                    type: 'single',
+                    options: [
+                        { name: 'No Topping', price: 0 },
+                        { name: 'Chocolate Sauce', price: 3 },
+                        { name: 'Caramel Sauce', price: 3 }
+                    ]
+                }
+            ],
+            'Milkshake Banana': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -5 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 8 }
+                    ]
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Whipped Cream', price: 3 },
+                        { name: 'Extra Banana', price: 5 },
+                        { name: 'Extra Ice Cream', price: 4 }
+                    ]
+                },
+                {
+                    name: 'Topping',
+                    type: 'single',
+                    options: [
+                        { name: 'No Topping', price: 0 },
+                        { name: 'Caramel Sauce', price: 3 },
+                        { name: 'Chocolate Sauce', price: 3 }
+                    ]
+                }
+            ],
+            'Chocolate Milkshake': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -5 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 8 }
+                    ]
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Whipped Cream', price: 3 },
+                        { name: 'Extra Chocolate', price: 5 },
+                        { name: 'Extra Ice Cream', price: 4 }
+                    ]
+                },
+                {
+                    name: 'Topping',
+                    type: 'single',
+                    options: [
+                        { name: 'No Topping', price: 0 },
+                        { name: 'Chocolate Sauce', price: 3 },
+                        { name: 'Caramel Sauce', price: 3 }
+                    ]
+                }
+            ],
+            'Espresso': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -2 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    options: [
+                        { name: 'Extra Shot', price: 5 },
+                        { name: 'Whipped Cream', price: 3 },
+                        { name: 'Caramel Syrup', price: 3 }
+                    ]
+                }
+            ],
+            'Ice Tea': [
+                {
+                    name: 'Size',
+                    type: 'single',
+                    options: [
+                        { name: 'Small', price: -2 },
+                        { name: 'Regular', price: 0 },
+                        { name: 'Large', price: 3 }
+                    ]
+                },
+                {
+                    name: 'Ice Level',
+                    type: 'single',
+                    options: ['No Ice', 'Light Ice', 'Regular Ice', 'Extra Ice']
+                },
+                {
+                    name: 'Flavor',
+                    type: 'single',
+                    options: ['Lemon', 'Peach', 'Raspberry']
+                }
+            ]
+        };
+
+        // Return default options if no specific customization exists for the product
+        return customizations[product.name] || [];
     };
 
     const handleOptionSelect = (category, option) => {
@@ -101,7 +494,6 @@ const CustomizeModal = ({ isOpen, onClose, onApply, product }) => {
     const handleApply = () => {
         const customizationData = {
             options: selectedOptions,
-            specialInstructions,
             extraCharge: calculateExtraCharge()
         };
         onApply(product, customizationData);
@@ -110,7 +502,7 @@ const CustomizeModal = ({ isOpen, onClose, onApply, product }) => {
 
     if (!isOpen || !product) return null;
 
-    const options = customizationOptions[product.category_id === 1 ? 'food' : 'drinks'];
+    const options = getProductCustomizations(product);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -162,18 +554,6 @@ const CustomizeModal = ({ isOpen, onClose, onApply, product }) => {
                             </div>
                         </div>
                     ))}
-
-                    <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Special Instructions
-                        </label>
-                        <textarea
-                            value={specialInstructions}
-                            onChange={(e) => setSpecialInstructions(e.target.value)}
-                            placeholder="Add any special instructions here..."
-                            className="w-full p-2 border rounded-lg h-24 resize-none"
-                        />
-                    </div>
 
                     <div className="border-t pt-4">
                         <div className="flex justify-between text-sm mb-4">

@@ -7,7 +7,7 @@ const PromotionModal = ({ isOpen, onClose, onApply, subtotal }) => {
     const promotions = [
         { id: 1, name: 'Happy Hour', type: 'percentage', value: 15, description: '15% off between 2-5 PM' },
         { id: 2, name: 'Student Discount', type: 'percentage', value: 10, description: '10% off with student ID' },
-        { id: 3, name: 'Loyalty Points', type: 'points', value: 1, description: 'Earn 1 point per 10 DH spent' },
+        { id: 3, name: 'Loyalty Points', type: 'points', value: 5, description: '5 DH off per 100 points' },
         { id: 4, name: 'Combo Deal', type: 'fixed', value: 20, description: '20 DH off on orders above 100 DH' }
     ];
 
@@ -19,6 +19,10 @@ const PromotionModal = ({ isOpen, onClose, onApply, subtotal }) => {
             if (promotion.type === 'percentage') {
                 discountAmount = (subtotal * promotion.value) / 100;
             } else if (promotion.type === 'fixed') {
+                discountAmount = promotion.value;
+            } else if (promotion.type === 'points') {
+                // Calculate discount based on points value
+                // Assuming 1 point = 0.05 DH discount
                 discountAmount = promotion.value;
             }
 
@@ -69,7 +73,7 @@ const PromotionModal = ({ isOpen, onClose, onApply, subtotal }) => {
                                 <span className="text-purple-600 font-medium">
                                     {promotion.type === 'percentage' ? `${promotion.value}%` :
                                      promotion.type === 'fixed' ? `${promotion.value} DH` :
-                                     `${promotion.value} pts`}
+                                     `${promotion.value} DH`}
                                 </span>
                             </div>
                             <p className="text-sm text-gray-600 mt-1">{promotion.description}</p>
