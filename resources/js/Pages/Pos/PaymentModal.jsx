@@ -7,6 +7,9 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
         card: { number: '', expiry: '', cvv: '' },
         mobile: { number: '' }
     });
+    
+    // Flag to track if we're starting a new input
+    const [startNewInput, setStartNewInput] = useState(true);
 
     const paymentMethods = [
         {
@@ -67,6 +70,58 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
             alert(error.message);
         }
     };
+    
+    // Handle numeric keypad input
+    const handleNumericInput = (value) => {
+        let currentAmount = paymentDetails.cash.amount || 0;
+        
+        if (value === 'CE') {
+            // Clear entry
+            currentAmount = 0;
+            setStartNewInput(true);
+        } else if (value === '⌫') {
+            // Backspace - shorten the number
+            if (currentAmount.toString().length <= 1) {
+                currentAmount = 0;
+                setStartNewInput(true);
+            } else {
+                currentAmount = parseFloat(currentAmount.toString().slice(0, -1));
+            }
+        } else if (value === '00') {
+            if (startNewInput || currentAmount === 0) {
+                // If starting a new input, set to 0
+                currentAmount = 0;
+            } else {
+                // Otherwise append 00
+                currentAmount = parseFloat(currentAmount.toString() + '00');
+            }
+            setStartNewInput(false);
+        } else {
+            // Number input
+            if (startNewInput || currentAmount === 0) {
+                // Replace with new digit if starting new input
+                currentAmount = parseFloat(value);
+            } else {
+                // Append to existing number
+                currentAmount = parseFloat(currentAmount.toString() + value);
+            }
+            setStartNewInput(false);
+        }
+        
+        setPaymentDetails({
+            ...paymentDetails,
+            cash: { amount: currentAmount }
+        });
+    };
+    
+    // Quick amount buttons
+    const handleQuickAmount = (amount) => {
+        setPaymentDetails({
+            ...paymentDetails,
+            cash: { amount: amount }
+        });
+        setStartNewInput(true);
+    };
 
     const renderPaymentForm = () => {
         switch (selectedMethod) {
@@ -80,18 +135,74 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
                             <input
                                 type="number"
                                 value={paymentDetails.cash.amount}
-                                onChange={(e) => setPaymentDetails({
-                                    ...paymentDetails,
-                                    cash: { amount: parseFloat(e.target.value) || 0 }
-                                })}
-                                className="w-full p-2 border rounded-lg"
-                                min={total}
-                                step="0.01"
+                                onChange={(e) => {
+                                    const amount = parseFloat(e.target.value) || 0;
+                                    setPaymentDetails({
+                                        ...paymentDetails,
+                                        cash: { amount }
+                                    });
+                                    setStartNewInput(true);
+                                }}
+                                onFocus={() => setStartNewInput(true)}
+                                className="w-full p-2 border rounded-lg text-xl text-center font-bold"
+                                min="0"
+                                step="any"
                                 required
                             />
                         </div>
-                        <div className="text-sm text-gray-600">
-                            Monnaie à rendre : {(paymentDetails.cash.amount - total).toFixed(2)} MAD
+                        <div className="text-sm text-gray-600 mb-2">
+                            Monnaie à rendre : <span className="font-medium">{(paymentDetails.cash.amount - total).toFixed(2)} MAD</span>
+                        </div>
+                        
+                        {/* Quick Amount Buttons */}
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                            {[total, 100, 200, 500, 1000, 2000].map(amount => (
+                                <button
+                                    key={amount}
+                                    type="button"
+                                    onClick={() => handleQuickAmount(amount)}
+                                    className="py-2 px-3 border rounded-lg hover:bg-gray-100"
+                                >
+                                    {amount.toFixed(2)} MAD
+                                </button>
+                            ))}
+                        </div>
+                        
+                        {/* Numeric Keypad */}
+                        <div className="border rounded-lg overflow-hidden">
+                            <div className="grid grid-cols-4 gap-0">
+                                <div className="col-span-3">
+                                    <div className="grid grid-cols-3 gap-0">
+                                        {[7, 8, 9, 4, 5, 6, 1, 2, 3, 0, 'CE', '⌫'].map((num) => (
+                                            <button
+                                                key={num}
+                                                type="button"
+                                                onClick={() => handleNumericInput(num.toString())}
+                                                className={`p-3 text-xl font-medium hover:bg-gray-100 border-r border-b transition-colors ${
+                                                    (num === 'CE') ? 'text-blue-600' : ''
+                                                }`}
+                                            >
+                                                {num}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleNumericInput('00')}
+                                        className="p-3 text-lg font-medium hover:bg-gray-100 border-b transition-colors"
+                                    >
+                                        00
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="p-3 text-lg font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors flex-1"
+                                    >
+                                        Payer
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -149,6 +260,12 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
                                 />
                             </div>
                         </div>
+                        <button
+                            type="submit"
+                            className="w-full py-2 px-4 rounded-lg text-white font-medium bg-purple-600 hover:bg-purple-700"
+                        >
+                            Valider le paiement
+                        </button>
                     </div>
                 );
 
@@ -171,6 +288,12 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
                                 required
                             />
                         </div>
+                        <button
+                            type="submit"
+                            className="w-full py-2 px-4 rounded-lg text-white font-medium bg-purple-600 hover:bg-purple-700"
+                        >
+                            Valider le paiement
+                        </button>
                     </div>
                 );
 
@@ -204,7 +327,17 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
                     {paymentMethods.map((method) => (
                         <button
                             key={method.id}
-                            onClick={() => setSelectedMethod(method.id)}
+                            type="button"
+                            onClick={() => {
+                                setSelectedMethod(method.id);
+                                if (method.id === 'cash') {
+                                    setPaymentDetails({
+                                        ...paymentDetails,
+                                        cash: { amount: total }
+                                    });
+                                    setStartNewInput(true);
+                                }
+                            }}
                             className={`p-4 rounded-lg border-2 transition-colors ${
                                 selectedMethod === method.id
                                     ? 'border-purple-500 bg-purple-50 text-purple-700'
@@ -221,13 +354,6 @@ const PaymentModal = ({ isOpen, onClose, onComplete, total }) => {
 
                 <form onSubmit={handlePaymentSubmit} className="space-y-4">
                     {renderPaymentForm()}
-
-                    <button
-                        type="submit"
-                        className="w-full py-2 px-4 rounded-lg text-white font-medium bg-purple-600 hover:bg-purple-700"
-                    >
-                        Valider le paiement
-                    </button>
                 </form>
             </div>
         </div>
