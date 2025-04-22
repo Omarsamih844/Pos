@@ -7,6 +7,20 @@ import Receipt from './Receipt';
 import PromotionModal from './PromotionModal';
 import CustomizeModal from './CustomizeModal';
 import PaymentModal from './PaymentModal';
+import { 
+    DocumentTextIcon, 
+    ShoppingCartIcon, 
+    PencilIcon, 
+    TrashIcon, 
+    BanknotesIcon, // Using BanknotesIcon instead of CashIcon
+    HomeIcon,
+    ShoppingBagIcon,
+    MapPinIcon,
+    PlusIcon,
+    ClipboardDocumentIcon,
+    ClockIcon,
+    XMarkIcon
+} from '@heroicons/react/24/solid';
 
 const PosIndex = ({ auth }) => {
     // Static Categories Data
@@ -353,10 +367,19 @@ const PosIndex = ({ auth }) => {
     };
 
     const updateQuantity = (productId, newQuantity) => {
-        if (newQuantity < 1) return;
+        if (newQuantity < 1) {
+            // If quantity is less than 1, remove the item from cart
+            removeFromCart(productId);
+            return;
+        }
+        
         setCart(cart.map(item =>
             item.product_id === productId
-                ? { ...item, quantity: newQuantity, subtotal: newQuantity * item.unit_price }
+                ? { 
+                    ...item, 
+                    quantity: newQuantity, 
+                    subtotal: newQuantity * (item.unit_price || item.price) 
+                }
                 : item
         ));
     };
@@ -689,641 +712,671 @@ const PosIndex = ({ auth }) => {
         return 'bg-green-400 border-green-600'; // available
     };
 
+    const formatPrice = (price) => {
+        // Handle null or undefined price values
+        if (price === undefined || price === null) {
+            return '0.00 MAD';
+        }
+        return `${price.toFixed(2)} MAD`;
+    };
+
+    const handleEditCartItem = (index) => {
+        // Implement edit functionality
+        console.log(`Editing item at index: ${index}`);
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title="Système de Caisse" />
             
-            <div className="flex h-screen bg-gray-100">
-                {/* Left Side - Cart */}
-                <div className="w-1/4 bg-white flex flex-col shadow-lg">
-                    {/* Cart Header - more compact with active orders */}
-                    <div className="p-3 bg-blue-900 text-white">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold">Panier</h2>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handleNewOrder}
-                                    className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Nouvelle
-                                </button>
-                                <div className="relative group">
-                                    <button
-                                        className="px-3 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        Commandes <span className="ml-1 bg-white text-blue-900 rounded-full h-5 w-5 flex items-center justify-center text-xs">{activeOrders.filter(o => o.status === 'pending').length}</span>
-                                    </button>
-                                    
-                                    {/* Active Orders Dropdown */}
-                                    <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg overflow-hidden z-10 w-64 hidden group-hover:block">
-                                        <div className="py-1 max-h-80 overflow-y-auto">
-                                            {activeOrders.filter(o => o.status === 'pending').length === 0 ? (
-                                                <div className="px-4 py-3 text-sm text-gray-500">Aucune commande active</div>
-                                            ) : (
-                                                activeOrders.filter(o => o.status === 'pending').map(order => (
-                                                    <div 
-                                                        key={order.id} 
-                                                        className={`px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer ${activeOrderId === order.id ? 'bg-blue-50' : ''}`}
-                                                        onClick={() => switchToOrder(order.id)}
-                                                    >
-                                                        <div className="flex justify-between items-center">
-                                                            <div className="flex flex-col">
-                                                                <span className="font-medium">
-                                                                    {order.type === 'eat_in' ? 'Sur Place' : order.type === 'takeout' ? 'À Emporter' : 'Livraison'}
-                                                                    {order.table_number && ` - Table ${order.table_number}`}
-                                                                </span>
-                                                                <span className="text-xs text-gray-500">{order.timestamp}</span>
-                                                            </div>
-                                                            <span className="font-medium">{order.total.toFixed(2)} MAD</span>
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
+            <div className="min-h-screen bg-gray-100">
+                <Head title="Point of Sale" />
+                <div className="flex h-screen">
+                    {/* Left Side - Cart - Wider to show more content */}
+                    <div className="w-2/5 bg-white flex flex-col shadow-lg">
+                        <div className="p-4 bg-blue-600 text-white">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold">Panier</h2>
+                                <div>
+                                    <span className="text-sm">
+                                        {tableNumber ? `Table #${tableNumber}` : 'Aucune table'}
+                                    </span>
                                 </div>
-                                
-                                {/* History Button */}
-                                <button
-                                    onClick={() => setShowOrderHistory(!showOrderHistory)}
-                                    className={`px-3 py-2 rounded-md text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md ${
-                                        showOrderHistory ? 'bg-indigo-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Historique
-                                </button>
                             </div>
                         </div>
-                        
-                        {/* Active Order ID with larger cancel button */}
-                        {activeOrderId && (
-                            <div className="mt-2 flex justify-between items-center">
-                                <div className="bg-blue-700 text-white px-2 py-1 rounded text-sm flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                    Commande active
-                                </div>
-                                <button 
-                                    onClick={() => cancelOrder(activeOrderId)}
-                                    className="bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center hover:bg-red-700 shadow-md"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Annuler
-                                </button>
-                            </div>
-                        )}
-                        
-                        <div className="flex gap-2 mt-2 text-sm">
-                            <div className="flex items-center gap-1">
-                                <span>Art.:</span>
-                                <span className="bg-white text-blue-900 px-2 py-1 rounded-full font-medium">
-                                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <span>Total:</span>
-                                <span className="bg-white text-blue-900 px-2 py-1 rounded-full font-medium">
-                                    {total.toFixed(2)} MAD
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Cart Items List - more compact */}
-                    <div className="flex-1 overflow-auto">
-                        {cart.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-full text-gray-500 p-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                <p className="text-base font-medium">Votre panier est vide</p>
-                                <p className="text-xs">Ajoutez des articles du menu</p>
-                            </div>
-                        ) : (
-                            cart.map((item) => (
-                                <div 
-                                    key={item.product_id} 
-                                    onClick={() => setSelectedProduct(staticProducts.find(p => p.id === item.product_id))}
-                                    className={`flex items-start px-2 py-1.5 hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer ${
-                                        selectedProduct?.id === item.product_id ? 'bg-blue-50' : ''
-                                    }`}
-                                >
-                                    <div className="flex items-center mr-2">
-                                        <span className="w-8 text-center font-bold text-base">{item.quantity}</span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start">
-                                            <div className="min-w-0">
-                                                <span className="font-medium text-gray-900 text-sm truncate block">{item.name}</span>
-                                                {customizations[item.product_id] && (
-                                                    <div className="text-xs text-blue-600">
-                                                        <div className="truncate">
-                                                            {Object.entries(customizations[item.product_id].options).map(([category, selection]) => (
-                                                                Array.isArray(selection) 
-                                                                    ? selection.map(opt => `${opt.name || opt}`).join(', ')
-                                                                    : `${selection.name || selection}`
-                                                            )).join(' | ')}
-                                                        </div>
-                                                        {customizations[item.product_id].instructions && (
-                                                            <div className="text-gray-600 italic text-xs truncate">
-                                                                {customizations[item.product_id].instructions}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                <div className="text-xs text-gray-500 flex items-center">
-                                                    <span>{item.unit_price.toFixed(2)} MAD</span>
-                                                    <span className="mx-1">×</span>
-                                                    <span>{item.quantity}</span>
-                                                </div>
-                                            </div>
-                                            <div className="text-sm font-medium text-gray-900 ml-1 whitespace-nowrap">
-                                                {(item.quantity * item.unit_price).toFixed(2)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    {/* Current Product Display - more compact */}
-                    {selectedProduct && (
-                        <div className="border-t border-gray-200 p-2 bg-blue-50">
+                        {/* Cart Header - more compact with active orders */}
+                        <div className="p-3 bg-blue-900 text-white">
                             <div className="flex justify-between items-center">
-                                <div className="truncate">
-                                    <h3 className="font-medium text-sm truncate">{selectedProduct.name}</h3>
-                                    <p className="text-xs text-gray-600">{selectedProduct.price.toFixed(2)} MAD</p>
-                                </div>
-                                <div className="text-xl font-bold ml-2">
-                                    {(cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0)}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Taxes and Total - more compact */}
-                    <div className="border-t border-gray-200 p-2 bg-gray-50">
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-xs text-gray-600">
-                                <span>Sous-total</span>
-                                <span>{subtotal.toFixed(2)} MAD</span>
-                            </div>
-                            <div className="flex justify-between text-xs text-gray-600">
-                                <span>TVA (20%)</span>
-                                <span>{tax.toFixed(2)} MAD</span>
-                            </div>
-                            {deliverySurcharge > 0 && (
-                                <div className="flex justify-between text-xs text-gray-600">
-                                    <span>Frais livraison</span>
-                                    <span>{deliverySurcharge.toFixed(2)} MAD</span>
-                                </div>
-                            )}
-                            {activePromotion && (
-                                <div className="flex justify-between text-xs text-green-600">
-                                    <span className="truncate">{activePromotion.name}</span>
-                                    <span>-{activePromotion.discountAmount.toFixed(2)}</span>
-                                </div>
-                            )}
-                            <div className="h-px bg-gray-200 my-1"></div>
-                            <div className="flex justify-between text-sm font-bold text-blue-900">
-                                <span>Total</span>
-                                <span>{total.toFixed(2)} MAD</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Numeric Keypad - more compact */}
-                    <div className="border-t border-gray-200">
-                        <div className="grid grid-cols-4 gap-0">
-                            <div className="col-span-3">
-                                <div className="grid grid-cols-3 gap-0">
-                                    {[7, 8, 9, 4, 5, 6, 1, 2, 3, 0, 'CE', '⌫'].map((num) => (
-                                        <button 
-                                            key={num}
-                                            onClick={() => {
-                                                if (selectedProduct) {
-                                                    const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
-                                                    if (num === '⌫') {
-                                                        if (currentQty < 10) {
-                                                            updateQuantity(selectedProduct.id, 0);
-                                                        } else {
-                                                            updateQuantity(selectedProduct.id, Math.floor(currentQty / 10));
-                                                        }
-                                                    } else if (num === 'CE') {
-                                                        updateQuantity(selectedProduct.id, 0);
-                                                        setStartNewInput(true);
-                                                    } else {
-                                                        if (startNewInput || currentQty === 0) {
-                                                            updateQuantity(selectedProduct.id, parseInt(num));
-                                                        } else {
-                                                            const newQty = parseInt(currentQty.toString() + num);
-                                                            updateQuantity(selectedProduct.id, newQty);
-                                                        }
-                                                        setStartNewInput(false);
-                                                    }
-                                                }
-                                            }}
-                                            className={`p-2 text-base font-medium hover:bg-gray-100 border-r border-b transition-colors ${
-                                                (num === 'CE') ? 'text-blue-600' : ''
-                                            }`}
+                                <h2 className="text-lg font-semibold">Panier</h2>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleNewOrder}
+                                        className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
+                                    >
+                                        <PlusIcon className="h-5 w-5 mr-1" />
+                                        Nouvelle
+                                    </button>
+                                    <div className="relative group">
+                                        <button
+                                            className="px-3 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
                                         >
-                                            {num}
+                                            <ClipboardDocumentIcon className="h-5 w-5 mr-1" />
+                                            Commandes <span className="ml-1 bg-white text-blue-900 rounded-full h-5 w-5 flex items-center justify-center text-xs">{activeOrders.filter(o => o.status === 'pending').length}</span>
                                         </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex flex-col">
-                                <button
-                                    onClick={() => {
-                                        if (selectedProduct) {
-                                            const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
-                                            updateQuantity(selectedProduct.id, currentQty + 1);
-                                        }
-                                    }}
-                                    className="p-2 text-base font-medium hover:bg-gray-100 border-b transition-colors"
-                                >
-                                    +
-                                </button>
-                                <button 
-                                    onClick={() => {
-                                        if (selectedProduct) {
-                                            const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
-                                            if (currentQty > 1) {
-                                                updateQuantity(selectedProduct.id, currentQty - 1);
-                                            }
-                                        }
-                                    }}
-                                    className="p-2 text-base font-medium hover:bg-gray-100 border-b transition-colors"
-                                >
-                                    -
-                                </button>
-                                <button 
-                                    onClick={() => {
-                                        if (selectedProduct) {
-                                            removeFromCart(selectedProduct.id);
-                                            setSelectedProduct(null);
-                                        }
-                                    }}
-                                    className="p-2 text-base font-medium hover:bg-gray-100 border-b transition-colors text-red-600"
-                                >
-                                    C
-                                </button>
-                                <button 
-                                    onClick={() => setShowPaymentModal(true)}
-                                    className="p-2 text-base font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-1"
-                                >
-                                    ↵
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Bottom Navigation - more compact */}
-                    <div className="p-3 bg-white border-t">
-                        <button
-                            onClick={() => setShowPaymentModal(true)}
-                            disabled={!activeOrderId || cart.length === 0}
-                            className={`w-full p-3 rounded-md transition-colors text-base font-medium h-14 flex items-center justify-center ${
-                                !activeOrderId || cart.length === 0
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-green-600 text-white hover:bg-green-700 shadow-md'
-                            }`}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Payer ({total.toFixed(2)} MAD)
-                        </button>
-                    </div>
-                </div>
-
-                {/* Right Side - Products or Tables */}
-                <div className="flex-1 flex flex-col bg-gray-100">
-                    {/* Top Navigation Tabs */}
-                    <div className="bg-white shadow-md mb-2">
-                        <div className="max-w-7xl mx-auto p-2">
-                            <div className="flex flex-wrap items-center">
-                                <button 
-                                    onClick={() => setActiveTab('tables')} 
-                                    className={`px-4 py-2 mr-2 rounded-md ${activeTab === 'tables' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
-                                >
-                                    Tables
-                                </button>
-                                <button 
-                                    onClick={() => setActiveTab('caisse')} 
-                                    className={`px-4 py-2 rounded-md ${activeTab === 'caisse' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
-                                >
-                                    Caisse
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Table Management View */}
-                    {activeTab === 'tables' && (
-                        <div className="flex-1 flex flex-col bg-gray-100 overflow-auto">
-                            <div className="p-4">
-                                <div className="max-w-7xl mx-auto">
-                                    {/* Floor Selection */}
-                                    <div className="flex justify-end mb-4">
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => setActiveFloor('Main Floor')}
-                                                className={`px-4 py-2 rounded-md border ${activeFloor === 'Main Floor' ? 'bg-blue-600 text-white' : 'bg-white'}`}
-                                            >
-                                                Main Floor
-                                            </button>
-                                            <button 
-                                                onClick={() => setActiveFloor('Patio')}
-                                                className={`px-4 py-2 rounded-md border ${activeFloor === 'Patio' ? 'bg-blue-600 text-white' : 'bg-white'}`}
-                                            >
-                                                Patio
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Floor Plan */}
-                                    <div className="bg-gray-700 p-4 rounded-lg shadow-xl">
-                                        {/* Restaurant Layout - Main Floor */}
-                                        {activeFloor === 'Main Floor' && (
-                                            <div className="bg-amber-100 p-6 rounded-md min-h-[600px] relative">
-                                                {/* Kitchen Area */}
-                                                <div className="absolute top-6 left-6 w-80 h-64 bg-gray-300 rounded-md border-2 border-gray-400 flex items-center justify-center">
-                                                    <div className="absolute top-2 left-2 text-sm font-bold bg-gray-200 px-2 py-1 rounded">
-                                                        Kitchen
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4 p-4">
-                                                        {/* Kitchen equipment */}
-                                                        <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
-                                                        <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
-                                                        <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
-                                                        <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
-                                                        
-                                                        {/* Sinks */}
-                                                        <div className="bg-white h-16 w-16 rounded-full border-2 border-gray-400 flex items-center justify-center">
-                                                            <div className="bg-gray-400 h-1 w-8 rounded"></div>
-                                                        </div>
-                                                        <div className="bg-white h-16 w-16 rounded-full border-2 border-gray-400 flex items-center justify-center">
-                                                            <div className="bg-gray-400 h-1 w-8 rounded"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                {/* Tables Area */}
-                                                <div className="ml-96 grid grid-cols-3 gap-8 p-6">
-                                                    {tables.filter(table => parseInt(table.id) < 20).map(table => (
-                                                        <div 
-                                                            key={table.id}
-                                                            onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
-                                                            className={`relative ${
-                                                                table.status === 'occupied' 
-                                                                    ? 'bg-red-400 border-red-600' 
-                                                                    : 'bg-green-400 border-green-600'
-                                                            } ${
-                                                                parseInt(table.id) > 8 ? 'w-48 h-32' : 'w-32 h-32'
-                                                            } rounded-md flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
-                                                        >
-                                                            <span className="text-2xl font-bold">{table.id}</span>
-                                                            
-                                                            {/* Table Chairs */}
-                                                            <div className="absolute -top-6 left-10 w-12 h-6 bg-blue-300 rounded-t-full"></div>
-                                                            <div className="absolute -right-6 top-10 w-6 h-12 bg-blue-300 rounded-r-full"></div>
-                                                            <div className="absolute -bottom-6 left-10 w-12 h-6 bg-blue-300 rounded-b-full"></div>
-                                                            <div className="absolute -left-6 top-10 w-6 h-12 bg-blue-300 rounded-l-full"></div>
-                                                            
-                                                            {parseInt(table.id) > 8 && (
-                                                                <>
-                                                                    <div className="absolute -top-6 right-10 w-12 h-6 bg-blue-300 rounded-t-full"></div>
-                                                                    <div className="absolute -bottom-6 right-10 w-12 h-6 bg-blue-300 rounded-b-full"></div>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
                                         
-                                        {/* Patio Area */}
-                                        {activeFloor === 'Patio' && (
-                                            <div className="bg-emerald-100 p-6 rounded-md min-h-[600px] relative">
-                                                <div className="grid grid-cols-3 gap-8 p-6">
-                                                    {tables.filter(table => parseInt(table.id) >= 20).map(table => (
+                                        {/* Active Orders Dropdown */}
+                                        <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg overflow-hidden z-10 w-64 hidden group-hover:block">
+                                            <div className="py-1 max-h-80 overflow-y-auto">
+                                                {activeOrders.filter(o => o.status === 'pending').length === 0 ? (
+                                                    <div className="px-4 py-3 text-sm text-gray-500">Aucune commande active</div>
+                                                ) : (
+                                                    activeOrders.filter(o => o.status === 'pending').map(order => (
                                                         <div 
-                                                            key={table.id}
-                                                            onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
-                                                            className={`relative ${
-                                                                table.status === 'occupied' 
-                                                                    ? 'bg-red-400 border-red-600' 
-                                                                    : 'bg-green-400 border-green-600'
-                                                            } w-32 h-32 rounded-full flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
+                                                            key={order.id} 
+                                                            className={`px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer ${activeOrderId === order.id ? 'bg-blue-50' : ''}`}
+                                                            onClick={() => switchToOrder(order.id)}
                                                         >
-                                                            <span className="text-2xl font-bold">{table.id}</span>
-                                                            {/* Round Table Chairs */}
-                                                            <div className="absolute -top-6 left-12 w-8 h-8 bg-blue-300 rounded-full"></div>
-                                                            <div className="absolute top-12 -right-6 w-8 h-8 bg-blue-300 rounded-full"></div>
-                                                            <div className="absolute -bottom-6 left-12 w-8 h-8 bg-blue-300 rounded-full"></div>
-                                                            <div className="absolute top-12 -left-6 w-8 h-8 bg-blue-300 rounded-full"></div>
+                                                            <div className="flex justify-between items-center">
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-medium">
+                                                                        {order.type === 'eat_in' ? 'Sur Place' : order.type === 'takeout' ? 'À Emporter' : 'Livraison'}
+                                                                        {order.table_number && ` - Table ${order.table_number}`}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-500">{order.timestamp}</span>
+                                                                </div>
+                                                                <span className="font-medium">{order.total.toFixed(2)} MAD</span>
+                                                            </div>
                                                         </div>
-                                                    ))}
-                                                </div>
+                                                    ))
+                                                )}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                     
-                                    {/* Legend */}
-                                    <div className="mt-4 flex gap-6 text-sm">
-                                        <div className="flex items-center">
-                                            <div className="w-4 h-4 bg-green-400 mr-2 rounded-sm"></div>
-                                            <span>Disponible</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <div className="w-4 h-4 bg-red-400 mr-2 rounded-sm"></div>
-                                            <span>Occupée</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Cash Register (Caisse) View */}
-                    {activeTab === 'caisse' && (
-                        <>
-                            {/* Service Type Pills */}
-                            <div className="bg-white p-3 mb-2 border-b">
-                                <div className="flex items-center justify-center space-x-4">
+                                    {/* History Button */}
                                     <button
-                                        onClick={() => setOrderType('eat_in')}
-                                        className={`px-4 py-2 rounded-full flex items-center ${
-                                            orderType === 'eat_in' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
+                                        onClick={() => setShowOrderHistory(!showOrderHistory)}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md ${
+                                            showOrderHistory ? 'bg-indigo-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                         }`}
                                     >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                        </svg>
-                                        Sur Place {tableNumber && `- Table ${tableNumber}`}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setOrderType('takeout');
-                                            setTableNumber('');
-                                        }}
-                                        className={`px-4 py-2 rounded-full flex items-center ${
-                                            orderType === 'takeout' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
-                                        }`}
-                                    >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                        </svg>
-                                        À Emporter
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setOrderType('delivery');
-                                            setTableNumber('');
-                                        }}
-                                        className={`px-4 py-2 rounded-full flex items-center ${
-                                            orderType === 'delivery' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
-                                        }`}
-                                    >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Livraison
+                                        <ClockIcon className="h-5 w-5 mr-1" />
+                                        Historique
                                     </button>
                                 </div>
                             </div>
                             
-                            {/* Search and Categories */}
-                            <div className="p-4 bg-white border-b shadow-sm">
-                                <div className="max-w-5xl mx-auto">
-                                    <div className="flex items-center mb-4">
-                                        <div className="flex-1 relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Rechercher des produits..."
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full p-3 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            />
-                                            <svg
-                                                className="w-5 h-5 absolute left-3 top-3.5 text-gray-400"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                            </svg>
-                                            {searchQuery && (
-                                                <button
-                                                    onClick={() => setSearchQuery('')}
-                                                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            )}
-                                        </div>
+                            {/* Active Order ID with larger cancel button */}
+                            {activeOrderId && (
+                                <div className="mt-2 flex justify-between items-center">
+                                    <div className="bg-blue-700 text-white px-2 py-1 rounded text-sm flex items-center">
+                                        <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
+                                        Commande active
                                     </div>
-                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                        <button
-                                            onClick={() => setActiveCategory(null)}
-                                            className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 ${
-                                                !activeCategory 
-                                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 transform scale-105' 
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                        >
-                                            Tous les produits
-                                        </button>
-                                        {categories.map((category) => (
-                                            <button
-                                                key={category.id}
-                                                onClick={() => setActiveCategory(category.id)}
-                                                className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 flex items-center gap-2 ${
-                                                    activeCategory === category.id 
-                                                        ? 'text-white shadow-lg transform scale-105' 
-                                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                }`}
-                                                style={{
-                                                    backgroundColor: activeCategory === category.id ? category.color : undefined,
-                                                    boxShadow: activeCategory === category.id ? `0 10px 15px -3px ${category.color}40` : undefined
-                                                }}
-                                            >
-                                                {category.name === 'Plats' ? (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                                                    </svg>
-                                                ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                                                    </svg>
-                                                )}
-                                                {category.name}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <button 
+                                        onClick={() => cancelOrder(activeOrderId)}
+                                        className="bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center hover:bg-red-700 shadow-md"
+                                    >
+                                        <XMarkIcon className="h-4 w-4 mr-1" />
+                                        Annuler
+                                    </button>
+                                </div>
+                            )}
+                            
+                            <div className="flex gap-2 mt-2 text-sm">
+                                <div className="flex items-center gap-1">
+                                    <span>Art.:</span>
+                                    <span className="bg-white text-blue-900 px-2 py-1 rounded-full font-medium">
+                                        {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span>Total:</span>
+                                    <span className="bg-white text-blue-900 px-2 py-1 rounded-full font-medium">
+                                        {total.toFixed(2)} MAD
+                                    </span>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Products Grid */}
-                            <div className="flex-1 p-1 overflow-auto bg-gray-100">
-                                <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-10 xl:grid-cols-12 gap-2">
-                                    {filteredProducts.map((product) => (
-                                        <div
-                                            key={product.id}
+                        {/* Cart Items - Improved item display */}
+                        <div className="flex-1 overflow-auto px-4 py-2">
+                            {cart.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                                    <ShoppingCartIcon className="h-16 w-16 mb-4" />
+                                    <p className="text-xl font-medium">Le panier est vide</p>
+                                    <p className="text-sm">Ajoutez des produits depuis la grille</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {cart.map((item, index) => (
+                                        <div 
+                                            key={index} 
                                             onClick={() => {
-                                                setSelectedProduct(product);
-                                                setShowCustomizeModal(true);
+                                                const product = staticProducts.find(p => p.id === item.product_id);
+                                                if (product) {
+                                                    setSelectedProduct(product);
+                                                    setStartNewInput(true);
+                                                }
                                             }}
-                                            className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md hover:bg-blue-50 transition-all duration-200 border border-gray-100"
+                                            className={`bg-white rounded-lg shadow p-3 flex justify-between items-center cursor-pointer transition-colors ${
+                                                selectedProduct?.id === item.product_id ? 'bg-blue-50 border-l-4 border-l-blue-500 pl-2' : ''
+                                            }`}
                                         >
-                                            <div className="relative h-24">
-                                                <img
-                                                    src={product.image}
-                                                    alt={product.name}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        e.target.src = 'https://via.placeholder.com/100?text=Pas+d%27image';
-                                                    }}
-                                                />
-                                                <div className="absolute top-1 left-1">
-                                                    <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-white text-gray-800 shadow-sm">
-                                                        {categories.find(c => c.id === product.category_id)?.name}
-                                                    </span>
+                                            <div className="flex-1">
+                                                <div className="font-medium">{item.name}</div>
+                                                <div className="text-gray-600">
+                                                    {formatPrice(item.unit_price || item.price)} x {item.quantity}
                                                 </div>
+                                                {item.notes && (
+                                                    <div className="text-xs text-gray-500 mt-1 italic">
+                                                        Note: {item.notes}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="p-2 text-center">
-                                                <h3 className="font-medium text-gray-900 text-xs truncate">{product.name}</h3>
-                                                <div className="mt-0.5 text-sm font-semibold text-blue-600">
-                                                    {product.price.toFixed(2)} MAD
+                                            <div className="flex items-center space-x-2">
+                                                <div className="font-bold text-gray-800">
+                                                    {formatPrice((item.unit_price || item.price) * item.quantity)}
+                                                </div>
+                                                <div className="flex flex-col space-y-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const product = staticProducts.find(p => p.id === item.product_id);
+                                                            if (product) {
+                                                                setSelectedProduct(product);
+                                                                setStartNewInput(true);
+                                                            }
+                                                        }}
+                                                        className="p-1 rounded hover:bg-gray-100"
+                                                    >
+                                                        <PencilIcon className="h-4 w-4 text-blue-500" />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeFromCart(item.product_id);
+                                                            if (selectedProduct?.id === item.product_id) {
+                                                                setSelectedProduct(null);
+                                                            }
+                                                        }}
+                                                        className="p-1 rounded hover:bg-gray-100"
+                                                    >
+                                                        <TrashIcon className="h-4 w-4 text-red-500" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Current Product Display - enhanced */}
+                        {selectedProduct && (
+                            <div className="border-t border-gray-200 p-3 bg-blue-50">
+                                <div className="flex justify-between items-center">
+                                    <div className="truncate flex-1">
+                                        <h3 className="font-medium text-base truncate">{selectedProduct.name}</h3>
+                                        <p className="text-sm text-gray-600">{formatPrice(selectedProduct.price)}</p>
+                                    </div>
+                                    <div className="text-xl font-bold ml-2 bg-white px-4 py-2 rounded-lg border border-blue-300 min-w-[50px] text-center">
+                                        {(cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0)}
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-xs text-gray-600 flex items-center">
+                                    <div className="h-1 w-1 bg-blue-500 rounded-full mr-1"></div>
+                                    Utilisez le clavier numérique pour modifier la quantité
+                                </div>
                             </div>
-                        </>
-                    )}
+                        )}
+
+                        {/* Taxes and Total - more compact */}
+                        <div className="border-t border-gray-200 p-2 bg-gray-50">
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs text-gray-600">
+                                    <span>Sous-total</span>
+                                    <span>{subtotal.toFixed(2)} MAD</span>
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-600">
+                                    <span>TVA (20%)</span>
+                                    <span>{tax.toFixed(2)} MAD</span>
+                                </div>
+                                {deliverySurcharge > 0 && (
+                                    <div className="flex justify-between text-xs text-gray-600">
+                                        <span>Frais livraison</span>
+                                        <span>{deliverySurcharge.toFixed(2)} MAD</span>
+                            </div>
+                        )}
+                                {activePromotion && (
+                                    <div className="flex justify-between text-xs text-green-600">
+                                        <span className="truncate">{activePromotion.name}</span>
+                                        <span>-{activePromotion.discountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="h-px bg-gray-200 my-1"></div>
+                                <div className="flex justify-between text-sm font-bold text-blue-900">
+                                    <span>Total</span>
+                                    <span>{total.toFixed(2)} MAD</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Numeric Keypad - larger for touch */}
+                        <div className="border-t border-gray-200">
+                            <div className="grid grid-cols-4 gap-0">
+                                <div className="col-span-3">
+                                    <div className="grid grid-cols-3 gap-0">
+                                        {[7, 8, 9, 4, 5, 6, 1, 2, 3, 0, 'CE', '⌫'].map((num) => (
+                                            <button 
+                                                key={num}
+                                                onClick={() => {
+                                                    if (selectedProduct) {
+                                                        const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
+                                                        if (num === '⌫') {
+                                                            if (currentQty < 10) {
+                                                                updateQuantity(selectedProduct.id, 0);
+                                                            } else {
+                                                                updateQuantity(selectedProduct.id, Math.floor(currentQty / 10));
+                                                            }
+                                                        } else if (num === 'CE') {
+                                                            updateQuantity(selectedProduct.id, 0);
+                                                            setStartNewInput(true);
+                                                        } else {
+                                                            if (startNewInput || currentQty === 0) {
+                                                                updateQuantity(selectedProduct.id, parseInt(num));
+                                                            } else {
+                                                                const newQty = parseInt(currentQty.toString() + num);
+                                                                updateQuantity(selectedProduct.id, newQty);
+                                                            }
+                                                            setStartNewInput(false);
+                                                        }
+                                                    }
+                                                }}
+                                                className={`p-4 text-xl font-medium hover:bg-gray-100 border-r border-b transition-colors h-16 ${
+                                                    (num === 'CE') ? 'text-blue-600' : ''
+                                                }`}
+                                            >
+                                                {num}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <button
+                                        onClick={() => {
+                                            if (selectedProduct) {
+                                                const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
+                                                updateQuantity(selectedProduct.id, currentQty + 1);
+                                            }
+                                        }}
+                                        className="p-4 text-xl font-medium hover:bg-gray-100 border-b transition-colors h-16"
+                                    >
+                                        +
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (selectedProduct) {
+                                                const currentQty = cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0;
+                                                if (currentQty > 1) {
+                                                    updateQuantity(selectedProduct.id, currentQty - 1);
+                                                }
+                                            }
+                                        }}
+                                        className="p-4 text-xl font-medium hover:bg-gray-100 border-b transition-colors h-16"
+                                    >
+                                        -
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (selectedProduct) {
+                                                removeFromCart(selectedProduct.id);
+                                                setSelectedProduct(null);
+                                            }
+                                        }}
+                                        className="p-4 text-xl font-medium hover:bg-gray-100 border-b transition-colors text-red-600 h-16"
+                                    >
+                                        C
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowPaymentModal(true)}
+                                        className="p-4 text-xl font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-1"
+                                    >
+                                        ↵
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bottom Navigation - more compact */}
+                        <div className="p-3 bg-white border-t">
+                            <button
+                                onClick={() => setShowPaymentModal(true)}
+                                disabled={!activeOrderId || cart.length === 0}
+                                className={`w-full p-3 rounded-md transition-colors text-base font-medium h-14 flex items-center justify-center ${
+                                    !activeOrderId || cart.length === 0
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-green-600 text-white hover:bg-green-700 shadow-md'
+                                }`}
+                            >
+                                <BanknotesIcon className="h-6 w-6 mr-2" />
+                                Payer ({total.toFixed(2)} MAD)
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Right Side - Products or Tables - Adjusted width proportion */}
+                    <div className="w-3/5 flex flex-col bg-gray-100">
+                        {/* Top Navigation Tabs */}
+                        <div className="bg-white shadow-md mb-2">
+                            <div className="max-w-7xl mx-auto p-2">
+                                <div className="flex flex-wrap items-center">
+                                    <button 
+                                        onClick={() => setActiveTab('tables')} 
+                                        className={`px-4 py-2 mr-2 rounded-md ${activeTab === 'tables' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                    >
+                                        Tables
+                                    </button>
+                                    <button 
+                                        onClick={() => setActiveTab('caisse')} 
+                                        className={`px-4 py-2 rounded-md ${activeTab === 'caisse' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                    >
+                                        Caisse
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Table Management View */}
+                        {activeTab === 'tables' && (
+                            <div className="flex-1 flex flex-col bg-gray-100 overflow-auto">
+                                <div className="p-4">
+                                    <div className="max-w-7xl mx-auto">
+                                        {/* Floor Selection */}
+                                        <div className="flex justify-end mb-4">
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => setActiveFloor('Main Floor')}
+                                                    className={`px-4 py-2 rounded-md border ${activeFloor === 'Main Floor' ? 'bg-blue-600 text-white' : 'bg-white'}`}
+                                                >
+                                                    Main Floor
+                                                </button>
+                                                <button 
+                                                    onClick={() => setActiveFloor('Patio')}
+                                                    className={`px-4 py-2 rounded-md border ${activeFloor === 'Patio' ? 'bg-blue-600 text-white' : 'bg-white'}`}
+                                                >
+                                                    Patio
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Floor Plan */}
+                                        <div className="bg-gray-700 p-4 rounded-lg shadow-xl">
+                                            {/* Restaurant Layout - Main Floor */}
+                                            {activeFloor === 'Main Floor' && (
+                                                <div className="bg-amber-100 p-6 rounded-md min-h-[600px] relative">
+                                                    {/* Kitchen Area */}
+                                                    <div className="absolute top-6 left-6 w-80 h-64 bg-gray-300 rounded-md border-2 border-gray-400 flex items-center justify-center">
+                                                        <div className="absolute top-2 left-2 text-sm font-bold bg-gray-200 px-2 py-1 rounded">
+                                                            Kitchen
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4 p-4">
+                                                            {/* Kitchen equipment */}
+                                                            <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
+                                                            <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
+                                                            <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
+                                                            <div className="bg-gray-500 h-16 w-16 rounded-full"></div>
+                                                            
+                                                            {/* Sinks */}
+                                                            <div className="bg-white h-16 w-16 rounded-full border-2 border-gray-400 flex items-center justify-center">
+                                                                <div className="bg-gray-400 h-1 w-8 rounded"></div>
+                                                            </div>
+                                                            <div className="bg-white h-16 w-16 rounded-full border-2 border-gray-400 flex items-center justify-center">
+                                                                <div className="bg-gray-400 h-1 w-8 rounded"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Tables Area */}
+                                                    <div className="ml-96 grid grid-cols-3 gap-8 p-6">
+                                                        {tables.filter(table => parseInt(table.id) < 20).map(table => (
+                                                            <div 
+                                                                key={table.id}
+                                                                onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
+                                                                className={`relative ${
+                                                                    table.status === 'occupied' 
+                                                                        ? 'bg-red-400 border-red-600' 
+                                                                        : 'bg-green-400 border-green-600'
+                                                                } ${
+                                                                    parseInt(table.id) > 8 ? 'w-48 h-32' : 'w-32 h-32'
+                                                                } rounded-md flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
+                                                            >
+                                                                <span className="text-2xl font-bold">{table.id}</span>
+                                                                
+                                                                {/* Table Chairs */}
+                                                                <div className="absolute -top-6 left-10 w-12 h-6 bg-blue-300 rounded-t-full"></div>
+                                                                <div className="absolute -right-6 top-10 w-6 h-12 bg-blue-300 rounded-r-full"></div>
+                                                                <div className="absolute -bottom-6 left-10 w-12 h-6 bg-blue-300 rounded-b-full"></div>
+                                                                <div className="absolute -left-6 top-10 w-6 h-12 bg-blue-300 rounded-l-full"></div>
+                                                                
+                                                                {parseInt(table.id) > 8 && (
+                                                                    <>
+                                                                        <div className="absolute -top-6 right-10 w-12 h-6 bg-blue-300 rounded-t-full"></div>
+                                                                        <div className="absolute -bottom-6 right-10 w-12 h-6 bg-blue-300 rounded-b-full"></div>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Patio Area */}
+                                            {activeFloor === 'Patio' && (
+                                                <div className="bg-emerald-100 p-6 rounded-md min-h-[600px] relative">
+                                                    <div className="grid grid-cols-3 gap-8 p-6">
+                                                        {tables.filter(table => parseInt(table.id) >= 20).map(table => (
+                                                            <div 
+                                                                key={table.id}
+                                                                onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
+                                                                className={`relative ${
+                                                                    table.status === 'occupied' 
+                                                                        ? 'bg-red-400 border-red-600' 
+                                                                        : 'bg-green-400 border-green-600'
+                                                                } w-32 h-32 rounded-full flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
+                                                            >
+                                                                <span className="text-2xl font-bold">{table.id}</span>
+                                                                {/* Round Table Chairs */}
+                                                                <div className="absolute -top-6 left-12 w-8 h-8 bg-blue-300 rounded-full"></div>
+                                                                <div className="absolute top-12 -right-6 w-8 h-8 bg-blue-300 rounded-full"></div>
+                                                                <div className="absolute -bottom-6 left-12 w-8 h-8 bg-blue-300 rounded-full"></div>
+                                                                <div className="absolute top-12 -left-6 w-8 h-8 bg-blue-300 rounded-full"></div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Legend */}
+                                        <div className="mt-4 flex gap-6 text-sm">
+                                            <div className="flex items-center">
+                                                <div className="w-4 h-4 bg-green-400 mr-2 rounded-sm"></div>
+                                                <span>Disponible</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <div className="w-4 h-4 bg-red-400 mr-2 rounded-sm"></div>
+                                                <span>Occupée</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Cash Register (Caisse) View */}
+                        {activeTab === 'caisse' && (
+                            <>
+                                {/* Service Type Pills */}
+                                <div className="bg-white p-3 mb-2 border-b">
+                                    <div className="flex items-center justify-center space-x-4">
+                                        <button
+                                            onClick={() => setOrderType('eat_in')}
+                                            className={`px-4 py-2 rounded-full flex items-center ${
+                                                orderType === 'eat_in' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}
+                                        >
+                                            <HomeIcon className="w-5 h-5 mr-2" />
+                                            Sur Place {tableNumber && `- Table ${tableNumber}`}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setOrderType('takeout');
+                                                setTableNumber('');
+                                            }}
+                                            className={`px-4 py-2 rounded-full flex items-center ${
+                                                orderType === 'takeout' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}
+                                        >
+                                            <ShoppingBagIcon className="w-5 h-5 mr-2" />
+                                            À Emporter
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setOrderType('delivery');
+                                                setTableNumber('');
+                                            }}
+                                            className={`px-4 py-2 rounded-full flex items-center ${
+                                                orderType === 'delivery' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}
+                                        >
+                                            <MapPinIcon className="w-5 h-5 mr-2" />
+                                            Livraison
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {/* Search and Categories */}
+                                <div className="p-4 bg-white border-b shadow-sm">
+                                    <div className="max-w-5xl mx-auto">
+                                        <div className="flex items-center mb-4">
+                                            <div className="flex-1 relative">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Rechercher des produits..."
+                                                    value={searchQuery}
+                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                    className="w-full p-3 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                />
+                                                <svg
+                                                    className="w-5 h-5 absolute left-3 top-3.5 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                </svg>
+                                                {searchQuery && (
+                                                    <button
+                                                        onClick={() => setSearchQuery('')}
+                                                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                            <button
+                                                onClick={() => setActiveCategory(null)}
+                                                className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 ${
+                                                    !activeCategory 
+                                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 transform scale-105' 
+                                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                            >
+                                                Tous les produits
+                                            </button>
+                                            {categories.map((category) => (
+                                                <button
+                                                    key={category.id}
+                                                    onClick={() => setActiveCategory(category.id)}
+                                                    className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 flex items-center gap-2 ${
+                                                        activeCategory === category.id 
+                                                            ? 'text-white shadow-lg transform scale-105' 
+                                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor: activeCategory === category.id ? category.color : undefined,
+                                                        boxShadow: activeCategory === category.id ? `0 10px 15px -3px ${category.color}40` : undefined
+                                                    }}
+                                                >
+                                                    {category.name === 'Plats' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                                                        </svg>
+                                                    )}
+                                                    {category.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Products Grid - Improved spacing and sizing */}
+                                <div className="flex-1 overflow-auto p-4">
+                                    <div className="flex flex-col space-y-4">
+                                        {categories.map((category) => (
+                                            <div key={category.id}>
+                                                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                                                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                                    {staticProducts
+                                                        .filter((product) => product.category_id === category.id)
+                                                        .map((product) => (
+                                                            <div
+                                                                key={product.id}
+                                                                className={`bg-white rounded-lg shadow p-3 cursor-pointer hover:bg-blue-50 transition-colors 
+                                                                          flex flex-col items-center justify-between h-36`}
+                                                                onClick={() => {
+                                                                    setSelectedProduct(product);
+                                                                    setShowCustomizeModal(true);
+                                                                }}
+                                                            >
+                                                                <div className="h-16 w-16 flex items-center justify-center">
+                                                                    {product.image ? (
+                                                                        <img
+                                                                            src={product.image}
+                                                                            alt={product.name}
+                                                                            className="h-full object-contain"
+                                                                        />
+                                                                    ) : (
+                                                                        <DocumentTextIcon className="h-12 w-12 text-gray-400" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-center mt-2">
+                                                                    <div className="font-medium text-sm">{product.name}</div>
+                                                                    <div className="text-gray-600 font-bold">{product.price.toFixed(2)} MAD</div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
