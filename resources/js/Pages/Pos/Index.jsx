@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+// import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ServiceTypeModal from './ServiceTypeModal';
 import NoteModal from './NoteModal';
 import Receipt from './Receipt';
@@ -10,37 +10,43 @@ import PaymentModal from './PaymentModal';
 
 const PosIndex = ({ auth }) => {
     // Static Categories Data
-    const categories = [
-        { id: 1, name: 'Plats', color: '#FFB6C1' }, // Light pink for food
-        { id: 2, name: 'Boissons', color: '#98FB98' } // Light green for drinks
-    ];
+    const [categories] = useState([
+        { id: 1, name: 'Plats', color: '#4F46E5' }, // Indigo for main dishes
+        { id: 2, name: 'Boissons', color: '#10B981' }, // Emerald for drinks
+        { id: 3, name: 'Pizzas', color: '#F59E0B' }, // Amber for pizzas
+        { id: 4, name: 'Desserts', color: '#EC4899' }, // Pink for desserts
+        { id: 5, name: 'Salades', color: '#34D399' }, // Emerald for salads
+        { id: 6, name: 'Pâtes', color: '#F97316' }, // Orange for pasta
+        { id: 7, name: 'Fruits de Mer', color: '#87CEEB' }, // Sky blue for seafood
+        { id: 8, name: 'Sandwich', color: '#8B4513' }, // Brown for sandwiches
+    ]);
 
     // Static Products Data with Images
     const staticProducts = [
-        // Food Products
+        // Burgers Category
         {
             id: 1,
             name: 'Bacon Burger',
             description: 'Smashed sweet potatoes',
             price: 49.00,
-            category_id: 1,
-            image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=100'
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=599'
         },
         {
             id: 2,
-            name: 'Burger Menu Combo',
+            name: 'Qiwi juice',
             description: 'Burger with fries and drink',
-            price: 52.00,
-            category_id: 1,
-            image: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?q=80&w=100'
+            price:29.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?q=80&w=500'
         },
         {
             id: 3,
             name: 'Cheese Burger',
             description: 'Classic cheeseburger with our special sauce',
             price: 36.00,
-            category_id: 1,
-            image: 'https://images.unsplash.com/photo-1551782450-17144efb9c50?q=80&w=100'
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1551782450-17144efb9c50?q=80&w=599'
         },
         {
             id: 4,
@@ -48,7 +54,7 @@ const PosIndex = ({ auth }) => {
             description: 'Spicy chicken curry sandwich',
             price: 47.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=599'
         },
         {
             id: 5,
@@ -56,7 +62,7 @@ const PosIndex = ({ auth }) => {
             description: 'Triple-decker sandwich with bacon',
             price: 45.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1540713434306-58505cf1b6fc?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1540713434306-58505cf1b6fc?q=80&w=599'
         },
         {
             id: 6,
@@ -64,7 +70,7 @@ const PosIndex = ({ auth }) => {
             description: 'Double beef patty with cheese',
             price: 32.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=599'
         },
         {
             id: 7,
@@ -72,7 +78,7 @@ const PosIndex = ({ auth }) => {
             description: 'Our signature tasty burger',
             price: 49.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=599'
         },
         {
             id: 8,
@@ -80,7 +86,7 @@ const PosIndex = ({ auth }) => {
             description: 'Spicy burger with chili sauce',
             price: 49.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=599'
         },
         {
             id: 9,
@@ -88,7 +94,7 @@ const PosIndex = ({ auth }) => {
             description: 'Classic chicken burger',
             price: 36.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=599'
         },
         {
             id: 10,
@@ -96,7 +102,7 @@ const PosIndex = ({ auth }) => {
             description: 'Fish fillet with tartar sauce',
             price: 33.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1511689660979-10d2b1aada49?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1511689660979-10d2b1aada49?q=80&w=599'
         },
         {
             id: 11,
@@ -104,100 +110,656 @@ const PosIndex = ({ auth }) => {
             description: 'The legendary double-decker',
             price: 36.00,
             category_id: 1,
-            image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?q=80&w=599'
         },
         {
             id: 12,
             name: 'Triple Cheese',
             description: 'Triple the cheese, triple the taste',
             price: 38.00,
-            category_id: 1,
-            image: 'https://images.unsplash.com/photo-1485451456034-3f9391c6f769?q=80&w=100'
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1485451456034-3f9391c6f769?q=80&w=599'
         },
-        // Drinks Products
         {
             id: 13,
+            name: 'Veggie Burger',
+            description: 'Plant-based patty with fresh vegetables',
+            price: 42.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?q=80&w=599'
+        },
+        {
+            id: 14,
+            name: 'Mushroom Swiss Burger',
+            description: 'Beef patty with sautéed mushrooms and Swiss cheese',
+            price: 45.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=599'
+        },
+        {
+            id: 15,
+            name: 'BBQ Bacon Burger',
+            description: 'Beef patty with BBQ sauce and crispy bacon',
+            price: 47.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?q=80&w=599'
+        },
+        
+        // Drinks Category
+        {
+            id: 16,
             name: 'Coca-Cola',
             description: 'Classic cola drink',
             price: 15.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?q=80&w=599'
         },
         {
-            id: 14,
+            id: 17,
             name: 'Espresso',
             description: 'Strong Italian coffee',
             price: 18.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=599'
         },
         {
-            id: 15,
+            id: 18,
             name: 'Water',
             description: 'Mineral water',
             price: 8.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?q=80&w=599'
         },
         {
-            id: 16,
+            id: 19,
             name: 'Ice Tea',
             description: 'Refreshing iced tea',
             price: 14.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?q=80&w=599'
         },
         {
-            id: 17,
+            id: 20,
             name: 'Fanta',
             description: 'Orange flavored soda',
             price: 15.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?q=80&w=599'
         },
         {
-            id: 18,
+            id: 21,
             name: 'Green Tea',
             description: 'Traditional Japanese green tea',
             price: 12.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?q=80&w=100'
+            image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?q=80&w=599'
         },
         {
-            id: 19,
+            id: 22,
             name: 'Milkshake Banana',
             description: 'Creamy banana milkshake topped with whipped cream',
             price: 25.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=100&auto=format&fit=crop'
+            image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=599&auto=format&fit=crop'
         },
         {
-            id: 20,
+            id: 23,
             name: 'Chocolate Milkshake',
             description: 'Rich chocolate milkshake with chocolate syrup',
             price: 25.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?q=80&w=100&auto=format&fit=crop'
+            image: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?q=80&w=599&auto=format&fit=crop'
         },
         {
-            id: 21,
+            id: 24,
             name: 'Strawberry Milkshake',
             description: 'Fresh strawberry milkshake with whipped cream',
             price: 25.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?q=80&w=100&auto=format&fit=crop'
+            image: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?q=80&w=599&auto=format&fit=crop'
         },
         {
-            id: 22,
+            id: 25,
             name: 'Oreo Milkshake',
             description: 'Creamy vanilla milkshake with crushed Oreos',
             price: 28.00,
             category_id: 2,
-            image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=100&auto=format&fit=crop'
-        }
+            image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=599&auto=format&fit=crop'
+        },
+        {
+            id: 26,
+            name: 'Cappuccino',
+            description: 'Italian coffee with steamed milk foam',
+            price: 22.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=599'
+        },
+        {
+            id: 27,
+            name: 'Latte',
+            description: 'Espresso with steamed milk',
+            price: 20.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?q=80&w=599'
+        },
+        {
+            id: 28,
+            name: 'Orange Juice',
+            description: 'Freshly squeezed orange juice',
+            price: 18.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=599'
+        },
+        {
+            id: 29,
+            name: 'Sprite',
+            description: 'Lemon-lime flavored soda',
+            price: 15.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?q=80&w=599'
+        },
+        {
+            id: 30,
+            name: 'Smoothie',
+            description: 'Mixed fruit smoothie',
+            price: 24.00,
+            category_id: 2,
+            image: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?q=80&w=599'
+        },
+        
+        // Pizzas Category (new category)
+        {
+            id: 31,
+            name: 'Margherita Pizza',
+            description: 'Classic pizza with tomato sauce, mozzarella, and basil',
+            price: 55.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=599'
+        },
+        {
+            id: 32,
+            name: 'Pepperoni Pizza',
+            description: 'Pizza topped with pepperoni slices',
+            price: 65.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=599'
+        },
+        {
+            id: 33,
+            name: 'Vegetarian Pizza',
+            description: 'Pizza with assorted vegetables',
+            price: 60.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=599'
+        },
+        {
+            id: 34,
+            name: 'Hawaiian Pizza',
+            description: 'Pizza with ham and pineapple',
+            price: 62.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=599'
+        },
+        {
+            id: 35,
+            name: 'BBQ Chicken Pizza',
+            description: 'Pizza with BBQ sauce and chicken',
+            price: 68.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=599'
+        },
+        {
+            id: 36,
+            name: 'Meat Lovers Pizza',
+            description: 'Pizza loaded with various meats',
+            price: 70.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=599'
+        },
+        {
+            id: 37,
+            name: 'Four Cheese Pizza',
+            description: 'Pizza with four different types of cheese',
+            price: 65.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1548369937-47519962c11a?q=80&w=599'
+        },
+        {
+            id: 38,
+            name: 'Mushroom Pizza',
+            description: 'Pizza with various mushrooms',
+            price: 63.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1595708684082-a173bb3a06c5?q=80&w=599'
+        },
+        {
+            id: 39,
+            name: 'Seafood Pizza',
+            description: 'Pizza with assorted seafood toppings',
+            price: 75.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=599'
+        },
+        {
+            id: 40,
+            name: 'Spicy Pizza',
+            description: 'Pizza with spicy peppers and jalapeños',
+            price: 64.00,
+            category_id: 3,
+            image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?q=80&w=599'
+        },
+        
+        // Desserts Category (new category)
+        {
+            id: 41,
+            name: 'Chocolate Cake',
+            description: 'Rich chocolate cake with ganache',
+            price: 35.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=599'
+        },
+        {
+            id: 42,
+            name: 'Cheesecake',
+            description: 'Creamy New York style cheesecake',
+            price: 38.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=599'
+        },
+        {
+            id: 43,
+            name: 'Ice Cream',
+            description: 'Assorted flavors of ice cream',
+            price: 25.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?q=80&w=599'
+        },
+        {
+            id: 44,
+            name: 'Apple Pie',
+            description: 'Traditional apple pie with cinnamon',
+            price: 32.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1535920527002-b35e96722eb9?q=80&w=599'
+        },
+        {
+            id: 45,
+            name: 'Tiramisu',
+            description: 'Italian coffee-flavored dessert',
+            price: 40.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=599'
+        },
+        {
+            id: 46,
+            name: 'Brownie',
+            description: 'Chocolate brownie with walnuts',
+            price: 28.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=599'
+        },
+        {
+            id: 47,
+            name: 'Crème Brûlée',
+            description: 'French custard with caramelized sugar top',
+            price: 42.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?q=80&w=599'
+        },
+        {
+            id: 48,
+            name: 'Fruit Salad',
+            description: 'Fresh seasonal fruits',
+            price: 30.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1564093497595-593b96d80180?q=80&w=599'
+        },
+        {
+            id: 49,
+            name: 'Panna Cotta',
+            description: 'Italian cream dessert with berry sauce',
+            price: 36.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=599'
+        },
+        {
+            id: 50,
+            name: 'Chocolate Mousse',
+            description: 'Light and airy chocolate dessert',
+            price: 34.00,
+            category_id: 4,
+            image: 'https://images.unsplash.com/photo-1511715282680-fbf93a50e721?q=80&w=599'
+        },
+        
+        // Salads Category (new category)
+        {
+            id: 51,
+            name: 'Caesar Salad',
+            description: 'Romaine lettuce with Caesar dressing and croutons',
+            price: 45.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?q=80&w=599'
+        },
+        {
+            id: 52,
+            name: 'Greek Salad',
+            description: 'Tomatoes, cucumbers, olives, and feta cheese',
+            price: 48.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=599'
+        },
+        {
+            id: 53,
+            name: 'Caprese Salad',
+            description: 'Tomatoes, mozzarella, and basil with balsamic glaze',
+            price: 50.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1595587870672-c79b47875c6a?q=80&w=599'
+        },
+        {
+            id: 54,
+            name: 'Chicken Salad',
+            description: 'Mixed greens with grilled chicken',
+            price: 55.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=599'
+        },
+        {
+            id: 55,
+            name: 'Tuna Salad',
+            description: 'Mixed greens with tuna and boiled eggs',
+            price: 52.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=599'
+        },
+        {
+            id: 56,
+            name: 'Waldorf Salad',
+            description: 'Apples, celery, walnuts with mayonnaise',
+            price: 47.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1607532941433-304659e8198a?q=80&w=599'
+        },
+        {
+            id: 57,
+            name: 'Cobb Salad',
+            description: 'Lettuce, chicken, bacon, eggs, avocado, and blue cheese',
+            price: 58.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?q=80&w=599'
+        },
+        {
+            id: 58,
+            name: 'Quinoa Salad',
+            description: 'Quinoa with vegetables and herbs',
+            price: 49.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1556386470-bcdc6a5e9b9e?q=80&w=599'
+        },
+        {
+            id: 59,
+            name: 'Pasta Salad',
+            description: 'Pasta with vegetables and Italian dressing',
+            price: 46.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=599'
+        },
+        {
+            id: 60,
+            name: 'Seafood Salad',
+            description: 'Mixed seafood with greens and lemon dressing',
+            price: 60.00,
+            category_id: 5,
+            image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=599'
+        },
+        
+        // Pasta Category (new category)
+        {
+            id: 61,
+            name: 'Spaghetti Bolognese',
+            description: 'Spaghetti with meat sauce',
+            price: 58.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?q=80&w=599'
+        },
+        {
+            id: 62,
+            name: 'Fettuccine Alfredo',
+            description: 'Fettuccine with creamy Alfredo sauce',
+            price: 56.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?q=80&w=599'
+        },
+        {
+            id: 63,
+            name: 'Lasagna',
+            description: 'Layered pasta with meat and cheese',
+            price: 62.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?q=80&w=599'
+        },
+        {
+            id: 64,
+            name: 'Penne Arrabbiata',
+            description: 'Penne with spicy tomato sauce',
+            price: 54.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1608219992759-8d74ed8d76eb?q=80&w=599'
+        },
+        {
+            id: 65,
+            name: 'Carbonara',
+            description: 'Spaghetti with eggs, cheese, and pancetta',
+            price: 59.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?q=80&w=599'
+        },
+        {
+            id: 66,
+            name: 'Ravioli',
+            description: 'Stuffed pasta with ricotta and spinach',
+            price: 60.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1611270629569-8b357cb88da9?q=80&w=599'
+        },
+        {
+            id: 67,
+            name: 'Gnocchi',
+            description: 'Potato dumplings with tomato sauce',
+            price: 57.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=599'
+        },
+        {
+            id: 68,
+            name: 'Linguine with Clams',
+            description: 'Linguine with clams in white wine sauce',
+            price: 65.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?q=80&w=599'
+        },
+        {
+            id: 69,
+            name: 'Pesto Pasta',
+            description: 'Pasta with basil pesto sauce',
+            price: 55.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=599'
+        },
+        {
+            id: 70,
+            name: 'Macaroni and Cheese',
+            description: 'Macaroni with creamy cheese sauce',
+            price: 52.00,
+            category_id: 6,
+            image: 'https://images.unsplash.com/photo-1543339494-b4cd4f7ba686?q=80&w=599'
+        },
+        
+        // Seafood Category (new category)
+        {
+            id: 71,
+            name: 'Grilled Salmon',
+            description: 'Salmon fillet with lemon butter sauce',
+            price: 75.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=599'
+        },
+        {
+            id: 72,
+            name: 'Shrimp Scampi',
+            description: 'Shrimp in garlic butter sauce',
+            price: 70.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=599'
+        },
+        {
+            id: 73,
+            name: 'Fish and Chips',
+            description: 'Battered fish with french fries',
+            price: 65.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1579208030886-b937da0925dc?q=80&w=599'
+        },
+        {
+            id: 74,
+            name: 'Lobster Tail',
+            description: 'Grilled lobster tail with butter',
+            price: 95.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?q=80&w=599'
+        },
+        {
+            id: 75,
+            name: 'Calamari',
+            description: 'Fried squid rings with marinara sauce',
+            price: 60.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?q=80&w=599'
+        },
+        {
+            id: 76,
+            name: 'Crab Cakes',
+            description: 'Pan-fried crab cakes with remoulade',
+            price: 68.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1625943553852-781c6dd46faa?q=80&w=599'
+        },
+        {
+            id: 77,
+            name: 'Seafood Paella',
+            description: 'Spanish rice dish with assorted seafood',
+            price: 80.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?q=80&w=599'
+        },
+        {
+            id: 78,
+            name: 'Tuna Steak',
+            description: 'Seared tuna steak with sesame crust',
+            price: 72.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1501595091296-3aa970afb3ff?q=80&w=599'
+        },
+        {
+            id: 79,
+            name: 'Mussels Mariniere',
+            description: 'Mussels in white wine sauce',
+            price: 65.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1548943487-a2e4e43b4853?q=80&w=599'
+        },
+        {
+            id: 80,
+            name: 'Seafood Soup',
+            description: 'Rich soup with various seafood',
+            price: 62.00,
+            category_id: 7,
+            image: 'https://images.unsplash.com/photo-1614777986387-015c2a89b696?q=80&w=599'
+        },
+        {
+            id: 81,
+            name: 'Club Sandwich',
+            description: 'Triple-decker sandwich with chicken, bacon, lettuce, and tomato',
+            price: 45.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1567234669003-dce7a7a88821?q=80&w=1000'
+        },
+        {
+            id: 82,
+            name: 'Grilled Cheese',
+            description: 'Classic grilled cheese with multiple cheese blend',
+            price: 35.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=1000'
+        },
+        {
+            id: 83,
+            name: 'Chicken Sandwich',
+            description: 'Grilled chicken breast with lettuce and special sauce',
+            price: 42.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?q=80&w=1000'
+        },
+        {
+            id: 84,
+            name: 'Veggie Delight',
+            description: 'Fresh vegetables with hummus and avocado',
+            price: 38.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1540914124281-342587941389?q=80&w=1000'
+        },
+        {
+            id: 85,
+            name: 'BLT Supreme',
+            description: 'Bacon, lettuce, and tomato with mayo on toasted bread',
+            price: 40.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1619096252214-ef06c45683e3?q=80&w=1000'
+        },
+        {
+            id: 86,
+            name: 'Tuna Melt',
+            description: 'Tuna salad with melted cheese on grilled bread',
+            price: 43.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?q=80&w=1000'
+        },
+        {
+            id: 87,
+            name: 'Mediterranean Sandwich',
+            description: 'Grilled vegetables, feta, and olive tapenade',
+            price: 41.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?q=80&w=1000'
+        },
+        {
+            id: 88,
+            name: 'Steak Sandwich',
+            description: 'Grilled steak with caramelized onions and cheese',
+            price: 52.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1511344407683-b1172dce025f?q=80&w=1000'
+        },
+        {
+            id: 89,
+            name: 'Egg & Avocado',
+            description: 'Fried egg with mashed avocado and microgreens',
+            price: 39.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=1000'
+        },
+        {
+            id: 90,
+            name: 'Pulled Pork Sandwich',
+            description: 'BBQ pulled pork with coleslaw',
+            price: 46.00,
+            category_id: 8,
+            image: 'https://images.unsplash.com/photo-1513185158878-8d8c2a2a3da3?q=80&w=1000'
+        },
     ];
 
     const [activeCategory, setActiveCategory] = useState(null);
+    const [showAllCategories, setShowAllCategories] = useState(false);
     const [cart, setCart] = useState([]);
     const [orderType, setOrderType] = useState('eat_in');
     const [tableNumber, setTableNumber] = useState('');
@@ -690,12 +1252,12 @@ const PosIndex = ({ auth }) => {
     };
 
     return (
-        <AuthenticatedLayout>
+        <>
             <Head title="Système de Caisse" />
             
             <div className="flex h-screen bg-gray-100">
                 {/* Left Side - Cart */}
-                <div className="w-1/4 bg-white flex flex-col shadow-lg">
+                <div className="w-1/3 bg-white flex flex-col shadow-lg">
                     {/* Cart Header - more compact with active orders */}
                     <div className="p-3 bg-blue-900 text-white">
                         <div className="flex justify-between items-center">
@@ -703,7 +1265,7 @@ const PosIndex = ({ auth }) => {
                             <div className="flex gap-2">
                                 <button
                                     onClick={handleNewOrder}
-                                    className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
+                                    className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-medium min-w-[100px] h-7 flex items-center justify-center shadow-md"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -712,12 +1274,13 @@ const PosIndex = ({ auth }) => {
                                 </button>
                                 <div className="relative group">
                                     <button
-                                        className="px-3 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md"
+                                        className="px-3 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 text-sm font-medium min-w-[100px] h-7 flex items-center justify-center shadow-md"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                        Commandes <span className="ml-1 bg-white text-blue-900 rounded-full h-5 w-5 flex items-center justify-center text-xs">{activeOrders.filter(o => o.status === 'pending').length}</span>
+                                        Commandes 
+                                        <span className="ml-1 bg-white text-blue-900 rounded-full h-5 w-5 flex items-center justify-center text-xs">{activeOrders.filter(o => o.status === 'pending').length}</span>
                                     </button>
                                     
                                     {/* Active Orders Dropdown */}
@@ -752,7 +1315,7 @@ const PosIndex = ({ auth }) => {
                                 {/* History Button */}
                                 <button
                                     onClick={() => setShowOrderHistory(!showOrderHistory)}
-                                    className={`px-3 py-2 rounded-md text-sm font-medium min-w-[100px] h-10 flex items-center justify-center shadow-md ${
+                                    className={`px-3 py-2 rounded-md text-sm font-medium min-w-[100px] h-7 flex items-center justify-center shadow-md ${
                                         showOrderHistory ? 'bg-indigo-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }`}
                                 >
@@ -1163,7 +1726,7 @@ const PosIndex = ({ auth }) => {
                     {activeTab === 'caisse' && (
                         <>
                             {/* Service Type Pills */}
-                            <div className="bg-white p-3 mb-2 border-b">
+                            {/* <div className="bg-white p-3 mb-2 border-b">
                                 <div className="flex items-center justify-center space-x-4">
                                     <button
                                         onClick={() => setOrderType('eat_in')}
@@ -1206,11 +1769,11 @@ const PosIndex = ({ auth }) => {
                                         Livraison
                                     </button>
                                 </div>
-                            </div>
+                            </div> */}
                             
                             {/* Search and Categories */}
                             <div className="p-4 bg-white border-b shadow-sm">
-                                <div className="max-w-5xl mx-auto">
+                                <div className="max-w-3xl mx-auto">
                                     <div className="flex items-center mb-4">
                                         <div className="flex-1 relative">
                                             <input
@@ -1243,51 +1806,167 @@ const PosIndex = ({ auth }) => {
                                                 </button>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                         <button
-                                            onClick={() => setActiveCategory(null)}
-                                            className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 ${
-                                                !activeCategory 
-                                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 transform scale-105' 
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
+                                            onClick={() => setShowAllCategories(!showAllCategories)}
+                                            className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
                                         >
-                                            Tous les produits
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM14 4a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1V4zM2 9a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V9zM8 9a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1V9zM14 9a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1V9zM2 14a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-1zM8 14a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1v-1zM14 14a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1z" />
+                                            </svg>
+                                            {showAllCategories ? 'Masquer Catégories' : 'Afficher Catégories'}
                                         </button>
-                                        {categories.map((category) => (
+                                    </div>
+                                    {showAllCategories ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+                                            {categories.map((category) => (
+                                                <div
+                                                    key={category.id}
+                                                    onClick={() => {
+                                                        setActiveCategory(category.id);
+                                                        setShowAllCategories(false);
+                                                    }}
+                                                    className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow duration-200 flex flex-col items-center"
+                                                    style={{ backgroundColor: category.color + '20' }}
+                                                >
+                                                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md mb-3 border-2 transform transition-all duration-300 hover:scale-110 hover:rotate-6" style={{ borderColor: category.color }}>
+                                                        {category.name === 'Plats' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg"  className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-amber-300" viewBox="0 0 512 512" fill="currentColor">
+                                                            {/* Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. */}
+                                                            <path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM312.6 63.7c-6.2-6.2-16.4-6.2-22.6 0L256 97.6 222.1 63.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l33.9 33.9-45.3 45.3-56.6-56.6c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l56.6 56.6-45.3 45.3L86.3 199.4c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L97.6 256 63.7 289.9c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l33.9-33.9 45.3 45.3-56.6 56.6c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l56.6-56.6 45.3 45.3-33.9 33.9c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L256 414.4l33.9 33.9c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-33.9-33.9 45.3-45.3 56.6 56.6c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-56.6-56.6 45.3-45.3 33.9 33.9c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6L414.4 256l33.9-33.9c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0l-33.9 33.9-45.3-45.3 56.6-56.6c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0l-56.6 56.6-45.3-45.3 33.9-33.9c6.2-6.2 6.2-16.4 0-22.6zM142.9 256l45.3-45.3L233.4 256l-45.3 45.3L142.9 256zm67.9 67.9L256 278.6l45.3 45.3L256 369.1l-45.3-45.3zM278.6 256l45.3-45.3L369.1 256l-45.3 45.3L278.6 256zm22.6-67.9L256 233.4l-45.3-45.3L256 142.9l45.3 45.3z"/>
+                                                        </svg>
+                                                        ) : category.name === 'Boissons' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-green-600" viewBox="0 0 512 512" fill="currentColor">
+                                                            {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                            <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32L0 416c0 53 43 96 96 96l192 0c53 0 96-43 96-96l16 0c61.9 0 112-50.1 112-112s-50.1-112-112-112l-48 0L32 192zm352 64l16 0c26.5 0 48 21.5 48 48s-21.5 48-48 48l-16 0 0-96zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
+                                                            </svg>
+                                                        ) : category.name === 'Pizzas' ? (
+                                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-yellow-600"  viewBox="0 0 512 512"  fill="currentColor">
+                                                          {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                          <path d="M169.7 .9c-22.8-1.6-41.9 14-47.5 34.7L110.4 80c.5 0 1.1 0 1.6 0c176.7 0 320 143.3 320 320c0 .5 0 1.1 0 1.6l44.4-11.8c20.8-5.5 36.3-24.7 34.7-47.5C498.5 159.5 352.5 13.5 169.7 .9zM399.8 410.2c.1-3.4 .2-6.8 .2-10.2c0-159.1-128.9-288-288-288c-3.4 0-6.8 .1-10.2 .2L.5 491.9c-1.5 5.5 .1 11.4 4.1 15.4s9.9 5.6 15.4 4.1L399.8 410.2zM176 208a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm64 128a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM96 384a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>
+                                                          </svg>
+                                                        ) : category.name === 'Desserts' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-fuchsia-600" viewBox="0 0 512 512" fill="currentColor">
+                                                        {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                        <path d="M367.1 160c.6-5.3 .9-10.6 .9-16C368 64.5 303.5 0 224 0S80 64.5 80 144c0 5.4 .3 10.7 .9 16l-.9 0c-26.5 0-48 21.5-48 48s21.5 48 48 48l53.5 0 181 0 53.5 0c26.5 0 48-21.5 48-48s-21.5-48-48-48l-.9 0zM96 288L200.8 497.7c4.4 8.8 13.3 14.3 23.2 14.3s18.8-5.5 23.2-14.3L352 288 96 288z"/>
+                                                        </svg>
+                                                        ) : category.name === 'Salades' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-green-600" viewBox="0 0 512 512" fill="currentColor">
+                                                        {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                        <path d="M0 192c0-35.3 28.7-64 64-64c.5 0 1.1 0 1.6 0C73 91.5 105.3 64 144 64c15 0 29 4.1 40.9 11.2C198.2 49.6 225.1 32 256 32s57.8 17.6 71.1 43.2C339 68.1 353 64 368 64c38.7 0 71 27.5 78.4 64c.5 0 1.1 0 1.6 0c35.3 0 64 28.7 64 64c0 11.7-3.1 22.6-8.6 32L8.6 224C3.1 214.6 0 203.7 0 192zm0 91.4C0 268.3 12.3 256 27.4 256l457.1 0c15.1 0 27.4 12.3 27.4 27.4c0 70.5-44.4 130.7-106.7 154.1L403.5 452c-2 16-15.6 28-31.8 28l-231.5 0c-16.1 0-29.8-12-31.8-28l-1.8-14.4C44.4 414.1 0 353.9 0 283.4z"/>
+                                                        </svg>
+                                                        ) : category.name === 'Pâtes' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                                            </svg>
+                                                        ) : category.name === 'Sandwich' ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-amber-700" viewBox="0 0 512 512" fill="currentColor">
+                                                            {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                            <path d="M61.1 224C45 224 32 211 32 194.9c0-1.9 .2-3.7 .6-5.6C37.9 168.3 78.8 32 256 32s218.1 136.3 223.4 157.3c.5 1.9 .6 3.7 .6 5.6c0 16.1-13 29.1-29.1 29.1L61.1 224zM144 128a16 16 0 1 0 -32 0 16 16 0 1 0 32 0zm240 16a16 16 0 1 0 0-32 16 16 0 1 0 0 32zM272 96a16 16 0 1 0 -32 0 16 16 0 1 0 32 0zM16 304c0-26.5 21.5-48 48-48l384 0c26.5 0 48 21.5 48 48s-21.5 48-48 48L64 352c-26.5 0-48-21.5-48-48zm16 96c0-8.8 7.2-16 16-16l416 0c8.8 0 16 7.2 16 16l0 16c0 35.3-28.7 64-64 64L96 480c-35.3 0-64-28.7-64-64l0-16z"/>
+                                                            </svg>
+                                                        ) : (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-700 transition-all duration-300 hover:text-orange-400" viewBox="0 0 512 512" fill="currentColor">
+                                                        <path d="M64 32C28.7 32 0 60.7 0 96s28.7 64 64 64l1 0c3.7 88.9 77 160 167 160l56 0 0-192-24 0L88.8 128 64 128c-17.7 0-32-14.3-32-32s14.3-32 32-32l400 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L64 32zM224 456c0 13.3 10.7 24 24 24l72 0 0-72.2-64.1-22.4c-12.5-4.4-26.2 2.2-30.6 14.7s2.2 26.2 14.7 30.6l4.5 1.6C233 433.9 224 443.9 224 456zm128 23.3c36.4-3.3 69.5-17.6 96.1-39.6l-86.5-34.6c-3 1.8-6.2 3.2-9.6 4.3l0 69.9zM472.6 415c24.6-30.3 39.4-68.9 39.4-111c0-12.3-1.3-24.3-3.7-35.9L382.8 355.1c.8 3.4 1.2 7 1.2 10.6c0 4.6-.7 9-1.9 13.1L472.6 415zM336 128l-16 0 0 192 18.3 0c9.9 0 19.1 3.2 26.6 8.5l133.5-92.4C471.8 172.6 409.1 128 336 128zM168 192a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"/>
+                                                        </svg>
+                                                        )}
+                                                    </div>
+                                                    <h3 className="text-lg font-semibold text-gray-800 tracking-tight transition-all duration-300 transform group-hover:translate-y-[-2px]">{category.name}</h3>
+                                                    <div className="flex items-center justify-center mt-2 bg-white/60 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white/80">
+                                                        <span className="text-sm font-medium transition-all duration-300" style={{ color: category.color }}>
+                                                            {staticProducts.filter(p => p.category_id === category.id).length} produits
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                             <button
-                                                key={category.id}
-                                                onClick={() => setActiveCategory(category.id)}
-                                                className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 flex items-center gap-2 ${
-                                                    activeCategory === category.id 
-                                                        ? 'text-white shadow-lg transform scale-105' 
+                                                onClick={() => setActiveCategory(null)}
+                                                className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 ${
+                                                    !activeCategory 
+                                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 transform scale-100' 
                                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
-                                                style={{
-                                                    backgroundColor: activeCategory === category.id ? category.color : undefined,
-                                                    boxShadow: activeCategory === category.id ? `0 10px 15px -3px ${category.color}40` : undefined
-                                                }}
                                             >
-                                                {category.name === 'Plats' ? (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                                                <div className="flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                    {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                    <path d="M416 0C400 0 288 32 288 176l0 112c0 35.3 28.7 64 64 64l32 0 0 128c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 0-112 0-208c0-17.7-14.3-32-32-32zM64 16C64 7.8 57.9 1 49.7 .1S34.2 4.6 32.4 12.5L2.1 148.8C.7 155.1 0 161.5 0 167.9c0 45.9 35.1 83.6 80 87.7L80 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-224.4c44.9-4.1 80-41.8 80-87.7c0-6.4-.7-12.8-2.1-19.1L191.6 12.5c-1.8-8-9.3-13.3-17.4-12.4S160 7.8 160 16l0 134.2c0 5.4-4.4 9.8-9.8 9.8c-5.1 0-9.3-3.9-9.8-9L127.9 14.6C127.2 6.3 120.3 0 112 0s-15.2 6.3-15.9 14.6L83.7 151c-.5 5.1-4.7 9-9.8 9c-5.4 0-9.8-4.4-9.8-9.8L64 16zm48.3 152l-.3 0-.3 0 .3-.7 .3 .7z"/>
                                                     </svg>
-                                                ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                                                    </svg>
-                                                )}
-                                                {category.name}
+                                                    <span>Tous les produits</span>
+                                                </div>
                                             </button>
-                                        ))}
-                                    </div>
+                                            {categories.map((category) => (
+                                                <button
+                                                    key={category.id}
+                                                    onClick={() => setActiveCategory(category.id)}
+                                                    className={`px-4 py-2 rounded-full flex-shrink-0 font-medium transition-all duration-200 flex items-center gap-2 ${
+                                                        activeCategory === category.id 
+                                                            ? 'text-white shadow-lg transform scale-100' 
+                                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor: activeCategory === category.id ? category.color : undefined,
+                                                        boxShadow: activeCategory === category.id ? `0 10px 15px -3px ${category.color}40` : undefined
+                                                    }}
+                                                >
+                                                    {category.name === 'Plats' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                            {/* Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. */}
+                                                            <path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM312.6 63.7c-6.2-6.2-16.4-6.2-22.6 0L256 97.6 222.1 63.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l33.9 33.9-45.3 45.3-56.6-56.6c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l56.6 56.6-45.3 45.3L86.3 199.4c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L97.6 256 63.7 289.9c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l33.9-33.9 45.3 45.3-56.6 56.6c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l56.6-56.6 45.3 45.3-33.9 33.9c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L256 414.4l33.9 33.9c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-33.9-33.9 45.3-45.3 56.6 56.6c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-56.6-56.6 45.3-45.3 33.9 33.9c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6L414.4 256l33.9-33.9c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0l-33.9 33.9-45.3-45.3 56.6-56.6c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0l-56.6 56.6-45.3-45.3 33.9-33.9c6.2-6.2 6.2-16.4 0-22.6zM142.9 256l45.3-45.3L233.4 256l-45.3 45.3L142.9 256zm67.9 67.9L256 278.6l45.3 45.3L256 369.1l-45.3-45.3zM278.6 256l45.3-45.3L369.1 256l-45.3 45.3L278.6 256zm22.6-67.9L256 233.4l-45.3-45.3L256 142.9l45.3 45.3z"/>
+                                                        </svg>
+                                                    ) : category.name === 'Boissons' ? (
+                                                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 640 512" fill="currentColor">
+                                                       {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                       <path d="M96 64c0-17.7 14.3-32 32-32l320 0 64 0c70.7 0 128 57.3 128 128s-57.3 128-128 128l-32 0c0 53-43 96-96 96l-192 0c-53 0-96-43-96-96L96 64zM480 224l32 0c35.3 0 64-28.7 64-64s-28.7-64-64-64l-32 0 0 128zM32 416l512 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/>
+                                                       </svg>
+                                                    ) : category.name === 'Pizzas' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                        <path d="M169.7 .9c-22.8-1.6-41.9 14-47.5 34.7L110.4 80c.5 0 1.1 0 1.6 0c176.7 0 320 143.3 320 320c0 .5 0 1.1 0 1.6l44.4-11.8c20.8-5.5 36.3-24.7 34.7-47.5C498.5 159.5 352.5 13.5 169.7 .9zM399.8 410.2c.1-3.4 .2-6.8 .2-10.2c0-159.1-128.9-288-288-288c-3.4 0-6.8 .1-10.2 .2L.5 491.9c-1.5 5.5 .1 11.4 4.1 15.4s9.9 5.6 15.4 4.1L399.8 410.2zM176 208a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm64 128a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM96 384a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>
+                                                        </svg>
+                                                    ) : category.name === 'Desserts' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                        {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                        <path d="M367.1 160c.6-5.3 .9-10.6 .9-16C368 64.5 303.5 0 224 0S80 64.5 80 144c0 5.4 .3 10.7 .9 16l-.9 0c-26.5 0-48 21.5-48 48s21.5 48 48 48l53.5 0 181 0 53.5 0c26.5 0 48-21.5 48-48s-21.5-48-48-48l-.9 0zM96 288L200.8 497.7c4.4 8.8 13.3 14.3 23.2 14.3s18.8-5.5 23.2-14.3L352 288 96 288z"/>
+                                                        </svg>
+                                                    ) : category.name === 'Salades' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                        {/* <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--> */}
+                                                        <path d="M0 192c0-35.3 28.7-64 64-64c.5 0 1.1 0 1.6 0C73 91.5 105.3 64 144 64c15 0 29 4.1 40.9 11.2C198.2 49.6 225.1 32 256 32s57.8 17.6 71.1 43.2C339 68.1 353 64 368 64c38.7 0 71 27.5 78.4 64c.5 0 1.1 0 1.6 0c35.3 0 64 28.7 64 64c0 11.7-3.1 22.6-8.6 32L8.6 224C3.1 214.6 0 203.7 0 192zm0 91.4C0 268.3 12.3 256 27.4 256l457.1 0c15.1 0 27.4 12.3 27.4 27.4c0 70.5-44.4 130.7-106.7 154.1L403.5 452c-2 16-15.6 28-31.8 28l-231.5 0c-16.1 0-29.8-12-31.8-28l-1.8-14.4C44.4 414.1 0 353.9 0 283.4z"/>
+                                                        </svg>
+                                                    ) : category.name === 'Pâtes' ? (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                                        </svg>
+                                                    ) : category.name === 'Fruits de Mer' ?(
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                        <path d="M64 32C28.7 32 0 60.7 0 96s28.7 64 64 64l1 0c3.7 88.9 77 160 167 160l56 0 0-192-24 0L88.8 128 64 128c-17.7 0-32-14.3-32-32s14.3-32 32-32l400 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L64 32zM224 456c0 13.3 10.7 24 24 24l72 0 0-72.2-64.1-22.4c-12.5-4.4-26.2 2.2-30.6 14.7s2.2 26.2 14.7 30.6l4.5 1.6C233 433.9 224 443.9 224 456zm128 23.3c36.4-3.3 69.5-17.6 96.1-39.6l-86.5-34.6c-3 1.8-6.2 3.2-9.6 4.3l0 69.9zM472.6 415c24.6-30.3 39.4-68.9 39.4-111c0-12.3-1.3-24.3-3.7-35.9L382.8 355.1c.8 3.4 1.2 7 1.2 10.6c0 4.6-.7 9-1.9 13.1L472.6 415zM336 128l-16 0 0 192 18.3 0c9.9 0 19.1 3.2 26.6 8.5l133.5-92.4C471.8 172.6 409.1 128 336 128zM168 192a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"/>
+                                                        </svg>
+                                                    ): category.name === 'Sandwich' ?(
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                        <path d="M61.1 224C45 224 32 211 32 194.9c0-1.9 .2-3.7 .6-5.6C37.9 168.3 78.8 32 256 32s218.1 136.3 223.4 157.3c.5 1.9 .6 3.7 .6 5.6c0 16.1-13 29.1-29.1 29.1L61.1 224zM144 128a16 16 0 1 0 -32 0 16 16 0 1 0 32 0zm240 16a16 16 0 1 0 0-32 16 16 0 1 0 0 32zM272 96a16 16 0 1 0 -32 0 16 16 0 1 0 32 0zM16 304c0-26.5 21.5-48 48-48l384 0c26.5 0 48 21.5 48 48s-21.5 48-48 48L64 352c-26.5 0-48-21.5-48-48zm16 96c0-8.8 7.2-16 16-16l416 0c8.8 0 16 7.2 16 16l0 16c0 35.3-28.7 64-64 64L96 480c-35.3 0-64-28.7-64-64l0-16z"/>
+                                                        </svg>
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor">
+                                                            <path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM96 96H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H96c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/>
+                                                        </svg>
+                                                    )}
+                                                    {category.name}
+                                                    {activeCategory === category.id && (
+                                                        <span className="absolute -top-1 -right-1 bg-white text-xs text-gray-800 font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                                                            {staticProducts.filter(p => p.category_id === category.id).length}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Products Grid */}
                             <div className="flex-1 p-1 overflow-auto bg-gray-100">
-                                <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-10 xl:grid-cols-12 gap-2">
+                                <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-5 xl:grid-cols-8 gap-2">
                                     {filteredProducts.map((product) => (
                                         <div
                                             key={product.id}
@@ -1727,7 +2406,7 @@ const PosIndex = ({ auth }) => {
                     </div>
                 </div>
             )}
-        </AuthenticatedLayout>
+        </>
     );
 };
 
