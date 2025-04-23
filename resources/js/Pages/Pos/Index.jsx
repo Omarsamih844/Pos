@@ -226,7 +226,6 @@ const PosIndex = ({ auth }) => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [foodCount, setFoodCount] = useState(0);
     const [drinksCount, setDrinksCount] = useState(0);
-    const [showCalculator, setShowCalculator] = useState(false);
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [change, setChange] = useState(0);
     const [showServiceTypeModal, setShowServiceTypeModal] = useState(false);
@@ -288,12 +287,6 @@ const PosIndex = ({ auth }) => {
         setFoodCount(foodItems);
         setDrinksCount(drinkItems);
     };
-
-    const filteredProducts = staticProducts.filter(product => 
-        activeCategory ? product.category_id === activeCategory : true
-    ).filter(product =>
-        searchQuery ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) : true
-    );
 
     const calculateTotals = () => {
         const newSubtotal = cart.reduce((sum, item) => {
@@ -706,9 +699,9 @@ const PosIndex = ({ auth }) => {
 
     // Update getTableColor function to remove the 'reserved' status option
     const getTableColor = (tableId, isSelected = false) => {
-        const status = tableStatuses[tableId]?.status;
+        const table = tables.find(t => t.id === tableId);
         
-        if (status === 'occupied') return 'bg-red-400 border-red-600';
+        if (table?.status === 'occupied') return 'bg-red-400 border-red-600';
         return 'bg-green-400 border-green-600'; // available
     };
 
@@ -734,16 +727,7 @@ const PosIndex = ({ auth }) => {
                 <div className="flex h-screen">
                     {/* Left Side - Cart - Wider to show more content */}
                     <div className="w-2/5 bg-white flex flex-col shadow-lg">
-                        <div className="p-4 bg-blue-600 text-white">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-bold">Panier</h2>
-                                <div>
-                                    <span className="text-sm">
-                                        {tableNumber ? `Table #${tableNumber}` : 'Aucune table'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                       
                         {/* Cart Header - more compact with active orders */}
                         <div className="p-3 bg-blue-900 text-white">
                             <div className="flex justify-between items-center">
@@ -812,6 +796,11 @@ const PosIndex = ({ auth }) => {
                                     <div className="bg-blue-700 text-white px-2 py-1 rounded text-sm flex items-center">
                                         <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
                                         Commande active
+                                    </div>
+                                    <div>
+                                    <span className="text-sm">
+                                        {tableNumber ? `Table #${tableNumber}` : 'Aucune table'}
+                                    </span>
                                     </div>
                                     <button 
                                         onClick={() => cancelOrder(activeOrderId)}
@@ -912,24 +901,7 @@ const PosIndex = ({ auth }) => {
                             )}
                         </div>
 
-                        {/* Current Product Display - enhanced */}
-                        {selectedProduct && (
-                            <div className="border-t border-gray-200 p-3 bg-blue-50">
-                                <div className="flex justify-between items-center">
-                                    <div className="truncate flex-1">
-                                        <h3 className="font-medium text-base truncate">{selectedProduct.name}</h3>
-                                        <p className="text-sm text-gray-600">{formatPrice(selectedProduct.price)}</p>
-                                    </div>
-                                    <div className="text-xl font-bold ml-2 bg-white px-4 py-2 rounded-lg border border-blue-300 min-w-[50px] text-center">
-                                        {(cart.find(item => item.product_id === selectedProduct.id)?.quantity || 0)}
-                                    </div>
-                                </div>
-                                <div className="mt-2 text-xs text-gray-600 flex items-center">
-                                    <div className="h-1 w-1 bg-blue-500 rounded-full mr-1"></div>
-                                    Utilisez le clavier numérique pour modifier la quantité
-                                </div>
-                            </div>
-                        )}
+                        
 
                         {/* Taxes and Total - more compact */}
                         <div className="border-t border-gray-200 p-2 bg-gray-50">
@@ -1049,7 +1021,7 @@ const PosIndex = ({ auth }) => {
                         </div>
 
                         {/* Bottom Navigation - more compact */}
-                        <div className="p-3 bg-white border-t">
+                        {/* <div className="p-3 bg-white border-t">
                             <button
                                 onClick={() => setShowPaymentModal(true)}
                                 disabled={!activeOrderId || cart.length === 0}
@@ -1062,7 +1034,7 @@ const PosIndex = ({ auth }) => {
                                 <BanknotesIcon className="h-6 w-6 mr-2" />
                                 Payer ({total.toFixed(2)} MAD)
                             </button>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Right Side - Products or Tables - Adjusted width proportion */}
