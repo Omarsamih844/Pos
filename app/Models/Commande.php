@@ -23,7 +23,11 @@ class Commande extends Model
         'numero_commande',
         'montant_total_ttc',
         'id_mode_vente',
-        'id_statut_commande'
+        'id_statut_commande',
+        'id_table',
+        'id_user',
+        'nombre_personne_table_commande',
+        'commentaire_commande'
     ];
 
     public function modeVente()
@@ -54,5 +58,13 @@ class Commande extends Model
                             'note_information_commande_produit'
                         ]
         );
+    }
+
+    public function table(){
+        return $this->belongsTo(Table::class, 'id_table', 'id_table');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
 }

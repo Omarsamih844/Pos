@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categorie;
-use App\Models\Produit;
-use App\Models\Commande;
-use App\Models\CommandeProduit;
+use App\Models\Category;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -104,4 +104,4 @@ class PosController extends Controller
 
         return redirect()->back()->with('success', 'Commande créée avec succès!');
     }
-} 
+}
