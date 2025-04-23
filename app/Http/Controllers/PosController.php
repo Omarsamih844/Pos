@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categorie;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Produit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,9 +14,11 @@ class PosController extends Controller
 {
     public function index()
     {
+        $categories = Categorie::all();
+        $produits = Produit::all();
         return Inertia::render('Pos/Index', [
-            'categories' => Category::all(),
-            'products' => Product::with('category')->get()
+            'categories' => $categories,
+            'produits' => $produits,
         ]);
     }
 
@@ -54,4 +58,4 @@ class PosController extends Controller
 
         return redirect()->back()->with('success', 'Order created successfully!');
     }
-} 
+}

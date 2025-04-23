@@ -36,4 +36,9 @@ class Table extends Model
     {
         return $this->belongsTo(StatutTable::class, 'id_statut_table', 'id_statut_table');
     }
+
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class, 'id_table', 'id_table');
+    }
 }
