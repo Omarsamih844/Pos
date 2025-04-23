@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\TableController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos/orders', [PosController::class, 'storeOrder'])->name('pos.orders.store');
+    
+    // Tables management routes
+    Route::get('/tables', [TableController::class, 'index'])->name('tables.index');
+    Route::patch('/tables/{table}/status', [TableController::class, 'updateStatus'])->name('tables.update.status');
 
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
