@@ -19,6 +19,18 @@ return new class extends Migration
             $table->foreign('id_mode_vente')->references('id_mode_vente')->on('mode_ventes');
             $table->unsignedBigInteger('id_statut_commande');
             $table->foreign('id_statut_commande')->references('id_statut_commande')->on('statut_commandes');
+
+            $table->unsignedBigInteger('id_table')->nullable();
+            $table->foreign('id_table')->references('id_table')->on('tables');
+
+            // Information du personnel responsable de la commande
+            $table->unsignedBigInteger('id_user');
+            $table->foreign('id_user')->references('id')->on('users');
+
+            $table->integer('nombre_personne_table_commande')->default(null);
+
+            $table->longText('commentaire_commande')->nullable();
+
             $table->timestamps();
         });
     }
