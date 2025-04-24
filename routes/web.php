@@ -7,18 +7,16 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Redirect root to login
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('login');
 });
 
+// After login, redirect to POS
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Redirect dashboard to POS
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        return redirect()->route('pos.index');
     })->name('dashboard');
 
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');

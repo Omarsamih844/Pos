@@ -25,7 +25,7 @@ const Receipt = () => {
             // Header
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text('BURGER HOUSE', pageWidth / 2, y, { align: 'center' });
+            doc.text('Apixel caisse', pageWidth / 2, y, { align: 'center' });
             
             y += lineHeight + 3; // Added extra spacing after header
             doc.setFontSize(8);
@@ -34,7 +34,7 @@ const Receipt = () => {
             y += lineHeight;
             doc.text('Tel: +1234567890', pageWidth / 2, y, { align: 'center' });
             y += lineHeight;
-            doc.text('www.burgerhouse.com', pageWidth / 2, y, { align: 'center' });
+            doc.text('www.apixel.com', pageWidth / 2, y, { align: 'center' });
 
             // Divider
             y += lineHeight;
@@ -59,7 +59,7 @@ const Receipt = () => {
             }
             
             y += lineHeight;
-            doc.text(`Caissier: ${order.cashier || 'N/A'}`, margin, y);
+            doc.text(`Caissier: ${order.cashier || 'SAAD'}`, margin, y);
 
             // Items Table Header
             y += lineHeight + 5; // Extra space before table header
@@ -216,19 +216,21 @@ const Receipt = () => {
             }
 
             // Barcode
-            y += lineHeight + 15; // More space before barcode
+            y += lineHeight + 20; // More space before barcode
             const canvas = document.createElement('canvas');
             JsBarcode(canvas, order.id, {
                 format: 'CODE128',
-                width: 1.5,
-                height: 30,
+                width: 2,                // Increased width for better readability
+                height: 40,              // Increased height for better visibility
                 displayValue: true,
-                fontSize: 8,
+                fontSize: 10,            // Larger font size for the value
                 font: 'Arial',
-                textMargin: 2,
+                textMargin: 3,           // Increased text margin
                 background: '#FFFFFF',
                 lineColor: '#000000',
-                margin: 0
+                margin: 5,               // Added margin around the barcode
+                marginTop: 8,            // Extra top margin
+                marginBottom: 8          // Extra bottom margin
             });
 
             const barcodeWidth = pageWidth - (margin * 2);
@@ -247,7 +249,7 @@ const Receipt = () => {
             y = doc.internal.pageSize.getHeight() - 15;
             doc.setFontSize(6);
             doc.setTextColor(128, 128, 128);
-            doc.text('www.burgerhouse.com', pageWidth / 2, y, { align: 'center' });
+            doc.text('www.apixel.com', pageWidth / 2, y, { align: 'center' });
 
             // Save the PDF
             doc.save(`receipt-${order.id}.pdf`);
