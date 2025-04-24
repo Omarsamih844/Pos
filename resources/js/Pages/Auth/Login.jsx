@@ -26,7 +26,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col justify-center sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col justify-center sm:px-6 lg:px-8 pb-10">
             <Head title="Login" />
 
             <div className="sm:mx-auto sm:w-full sm:max-w-md mb-4">
@@ -34,7 +34,7 @@ export default function Login({ status, canResetPassword }) {
                     <img
                         src="/images/apixelogo.svg"
                         alt="Logo"
-                        className="h-20 w-auto transform transition-all duration-500 hover:scale-105"
+                        className="h-28 w-auto transform transition-all duration-500 hover:scale-105"
                     />
                     <div className="absolute -bottom-1 w-24 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transform origin-left transition-all duration-500 hover:scale-x-110"></div>
                 </div>
@@ -192,7 +192,7 @@ export default function Login({ status, canResetPassword }) {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    className="h-4 w-4 text-gray-600 transition-colors duration-300 hover:text-blue-500"
+                                    className="h-4 w-4 text-gray-600 transition-colors duration-300 group-hover:text-blue-500"
                                     viewBox="0 0 16 16"
                                     class="bi bi-fingerprint"
                                 >

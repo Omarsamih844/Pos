@@ -30,9 +30,9 @@ const Receipt = () => {
             y += lineHeight + 3; // Added extra spacing after header
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
-            doc.text('123 Main Street, City', pageWidth / 2, y, { align: 'center' });
+            doc.text('Chefhaouni Ain sbaa, Casablanca', pageWidth / 2, y, { align: 'center' });
             y += lineHeight;
-            doc.text('Tel: +1234567890', pageWidth / 2, y, { align: 'center' });
+            doc.text('Tel: +212', pageWidth / 2, y, { align: 'center' });
             y += lineHeight;
             doc.text('www.apixel.com', pageWidth / 2, y, { align: 'center' });
 
@@ -46,6 +46,7 @@ const Receipt = () => {
             doc.setFontSize(8);
             doc.text(`Commande #: ${order.id}`, margin, y);
             const dateWidth = doc.getTextWidth(`Date: ${order.timestamp}`);
+            y += lineHeight;
             doc.text(`Date: ${order.timestamp}`, pageWidth - margin - dateWidth, y);
             
             y += lineHeight;
