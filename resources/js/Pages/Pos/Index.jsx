@@ -1935,13 +1935,13 @@ const PosIndex = ({ auth }) => {
                                                 : "bg-gray-200 hover:bg-gray-300"
                                         }`}
                                     >
-                                        <svg 
-                                            xmlns="http://www.w3.org/2000/svg" 
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 512 512"
                                             className="h-4 w-4 inline-block mr-1 mb-1"
                                             fill="currentColor"
                                         >
-                                            <path d="M64 0C46.3 0 32 14.3 32 32l0 64c0 17.7 14.3 32 32 32l80 0 0 32-57 0c-31.6 0-58.5 23.1-63.3 54.4L1.1 364.1C.4 368.8 0 373.6 0 378.4L0 448c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-69.6c0-4.8-.4-9.6-1.1-14.4L488.2 214.4C483.5 183.1 456.6 160 425 160l-217 0 0-32 80 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32L64 0zM96 48l160 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L96 80c-8.8 0-16-7.2-16-16s7.2-16 16-16zM64 432c0-8.8 7.2-16 16-16l352 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L80 448c-8.8 0-16-7.2-16-16zm48-168a24 24 0 1 1 0-48 24 24 0 1 1 0 48zm120-24a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM160 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM328 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM256 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM424 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM352 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48z"/>
+                                            <path d="M64 0C46.3 0 32 14.3 32 32l0 64c0 17.7 14.3 32 32 32l80 0 0 32-57 0c-31.6 0-58.5 23.1-63.3 54.4L1.1 364.1C.4 368.8 0 373.6 0 378.4L0 448c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-69.6c0-4.8-.4-9.6-1.1-14.4L488.2 214.4C483.5 183.1 456.6 160 425 160l-217 0 0-32 80 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32L64 0zM96 48l160 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L96 80c-8.8 0-16-7.2-16-16s7.2-16 16-16zM64 432c0-8.8 7.2-16 16-16l352 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L80 448c-8.8 0-16-7.2-16-16zm48-168a24 24 0 1 1 0-48 24 24 0 1 1 0 48zm120-24a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM160 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM328 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM256 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM424 240a24 24 0 1 1 -48 0 24 24 0 1 1 48 0zM352 344a24 24 0 1 1 0-48 24 24 0 1 1 0 48z" />
                                         </svg>
                                         Caisse
                                     </button>
@@ -1949,28 +1949,28 @@ const PosIndex = ({ auth }) => {
                                 <div className="relative">
                                     <button
                                         onClick={toggleDropdown}
-                                        className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+                                        className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none transition duration-150 ease-in-out rounded-lg p-2 hover:bg-gray-100"
                                     >
+                                        <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center overflow-hidden shadow-md">
+                                            {auth.user.first_name
+                                                .charAt(0)
+                                                .toUpperCase()}
+                                            {auth.user.last_name &&
+                                                auth.user.last_name
+                                                    .charAt(0)
+                                                    .toUpperCase()}
+                                        </div>
+                                        <div className="flex flex-col items-start">
+                                            <span className="font-medium text-sm">
+                                                {auth.user.first_name}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                                Caissier
+                                            </span>
+                                        </div>
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            fill="currentColor"
-                                            class="bi bi-person-circle"
-                                            // viewBox="0 0 16 16"
-                                            className="h-12 w-12" 
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-                                            />
-                                        </svg>
-                                        <span className="font-medium">
-                                            {auth.user.first_name}
-                                        </span>
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5"
+                                            className="h-5 w-5 text-gray-500"
                                             viewBox="0 0 20 20"
                                             fill="currentColor"
                                         >
@@ -1983,18 +1983,54 @@ const PosIndex = ({ auth }) => {
                                     </button>
 
                                     {isDropdownOpen && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-200 overflow-hidden">
+                                            <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                                                <p className="text-sm font-medium text-gray-900">
+                                                    {auth.user.first_name}{" "}
+                                                    {auth.user.last_name}
+                                                </p>
+                                                <p className="text-xs text-gray-500 truncate">
+                                                    {auth.user.email}
+                                                </p>
+                                            </div>
                                             <Link
                                                 href={route("profile.edit")}
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out flex items-center"
                                             >
-                                                Profile
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4 mr-2 text-gray-500"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                >
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                                    <circle cx="12" cy="7" r="4" />
+                                                </svg>
+                                                Mon profil
                                             </Link>
                                             <button
                                                 onClick={handleLogout}
-                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150 ease-in-out flex items-center"
                                             >
-                                                Log Out
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4 mr-2 text-red-500"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                                    />
+                                                </svg>
+                                                Déconnexion
                                             </button>
                                         </div>
                                     )}
