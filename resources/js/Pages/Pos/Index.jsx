@@ -7,6 +7,7 @@ import Receipt from './Receipt';
 import PromotionModal from './PromotionModal';
 import CustomizeModal from './CustomizeModal';
 import PaymentModal from './PaymentModal';
+import TableOccupancyModal from './TableOccupancyModal';
 import { 
     DocumentTextIcon, 
     ShoppingCartIcon, 
@@ -390,6 +391,10 @@ const PosIndex = ({ auth }) => {
     const [alertTitle, setAlertTitle] = useState('');
     const [alertCallback, setAlertCallback] = useState(null);
     const [isConfirm, setIsConfirm] = useState(false);
+    const [showTableOccupancyModal, setShowTableOccupancyModal] = useState(false);
+    const [selectedTableId, setSelectedTableId] = useState(null);
+    const [tableOccupancies, setTableOccupancies] = useState({});
+    const [isSelectedTableOccupied, setIsSelectedTableOccupied] = useState(false);
     const [tables, setTables] = useState([
         { id: '1', status: 'available' },
         { id: '2', status: 'available' },
@@ -402,14 +407,7 @@ const PosIndex = ({ auth }) => {
         { id: '9', status: 'available' },
         { id: '10', status: 'available' },
         { id: '11', status: 'available' },
-        { id: '12', status: 'available' },
-        // Patio tables
-        { id: '20', status: 'available' },
-        { id: '21', status: 'available' },
-        { id: '22', status: 'available' },
-        { id: '23', status: 'available' },
-        { id: '24', status: 'available' },
-        { id: '25', status: 'available' },
+        { id: '12', status: 'available' }
     ]);
     const [activeFloor, setActiveFloor] = useState('Main Floor');
 
@@ -555,8 +553,9 @@ const PosIndex = ({ auth }) => {
         const newOrder = {
             id: newOrderId,
             items: [],
-            type: 'takeout', // Default type
-            table_number: '',
+            type: 'takeout', // Default type, will be updated when user selects
+            table_number: '', // No table assigned initially
+            numberOfPeople: 0, // Will be set when a table is selected
             notes: '',
             status: 'pending', // En cours
             timestamp: new Date().toLocaleString('fr-FR', {
@@ -583,10 +582,7 @@ const PosIndex = ({ auth }) => {
         setActivePromotion(null);
         setCustomizations({});
         
-        // Make sure we're showing the caisse tab with our new order
-        setActiveTab('caisse');
-        
-        // Show service type modal for the new order
+        // Show service type selection modal
         setShowServiceTypeModal(true);
     };
 
@@ -621,7 +617,8 @@ const PosIndex = ({ auth }) => {
                     notes: notes,
                     subtotal: subtotal,
                     tax: tax,
-                    total: total
+                    total: total,
+                    numberOfPeople: tableOccupancies[tableNumber] || order.numberOfPeople || 1
                 }
                 : order
         ));
@@ -760,11 +757,11 @@ const PosIndex = ({ auth }) => {
         setOrderType(type);
         setShowServiceTypeModal(false);
         
-        // If eat_in is selected and showTables is true, switch to tables tab temporarily
-        if (type === 'eat_in' && showTables) {
+        // If eat_in is selected, switch to tables tab
+        if (type === 'eat_in') {
             setActiveTab('tables');
         } else {
-            // For other service types, make sure we stay on or return to caisse tab
+            // For takeout and delivery, go to caisse tab
             setActiveTab('caisse');
         }
     };
@@ -845,22 +842,41 @@ const PosIndex = ({ auth }) => {
     };
 
     const handleTableSelect = (tableId) => {
+        console.log('Table selected:', tableId);
+        
         // Check if table is already occupied
         const tableOccupied = activeOrders.some(order => 
             order.status === 'pending' && order.table_number === tableId
         );
         
         if (tableOccupied) {
-            showAlert('Cette table est déjà occupée.', 'Attention');
-            return;
+            console.log('Table is occupied, showing modify modal');
+            // Table is occupied - show modify occupancy modal
+            setSelectedTableId(tableId);
+            setIsSelectedTableOccupied(true);
+            
+            // Find the current order for this table to get number of people
+            const currentOrder = activeOrders.find(order => 
+                order.status === 'pending' && order.table_number === tableId
+            );
+            
+            // Set initial people from the existing order or default to 1
+            const currentPeople = currentOrder?.numberOfPeople || 1;
+            setShowTableOccupancyModal(true);
+        } else {
+            // Check if there's an active order before allowing selection of an empty table
+            if (!activeOrderId) {
+                console.log('No active order, showing alert');
+                showAlert('Please create a new order before selecting a table.', 'Action Required');
+                return;
+            }
+            
+            console.log('Table is available, showing new occupancy modal');
+            // Table is available - show new occupancy modal
+            setSelectedTableId(tableId);
+            setIsSelectedTableOccupied(false);
+            setShowTableOccupancyModal(true);
         }
-        
-        // Set the table number
-        setTableNumber(tableId);
-        setOrderType('eat_in');
-        
-        // Switch to the Caisse tab
-        setActiveTab('caisse');
     };
 
     // Update table status whenever activeOrders changes
@@ -927,6 +943,85 @@ const PosIndex = ({ auth }) => {
             }
             setStartNewInput(false);
         }
+    };
+
+    // Add a new function to handle table occupancy
+    const handleTableOccupancySave = (tableId, numberOfPeople, cancelOrder = false) => {
+        if (cancelOrder) {
+            // Cancel the order for this table
+            const orderToCancel = activeOrders.find(order => 
+                order.status === 'pending' && order.table_number === tableId
+            );
+            
+            if (orderToCancel) {
+                setActiveOrders(activeOrders.map(order => 
+                    order.id === orderToCancel.id
+                        ? { ...order, status: 'cancelled' } 
+                        : order
+                ));
+                
+                // If cancelling the active order, clear the cart
+                if (orderToCancel.id === activeOrderId) {
+                    setCart([]);
+                    setActiveOrderId(null);
+                }
+            }
+            
+            // Update table occupancies
+            const updatedOccupancies = { ...tableOccupancies };
+            delete updatedOccupancies[tableId];
+            setTableOccupancies(updatedOccupancies);
+            
+            return;
+        }
+        
+        // Store the number of people for this table
+        setTableOccupancies({
+            ...tableOccupancies,
+            [tableId]: numberOfPeople
+        });
+        
+        if (isSelectedTableOccupied) {
+            // Update existing order with new number of people
+            const orderToUpdate = activeOrders.find(order => 
+                order.status === 'pending' && order.table_number === tableId
+            );
+            
+            if (orderToUpdate) {
+                setActiveOrders(activeOrders.map(order => 
+                    order.id === orderToUpdate.id
+                        ? { ...order, numberOfPeople: numberOfPeople } 
+                        : order
+                ));
+                
+                // If updating the active order, update the state
+                if (orderToUpdate.id === activeOrderId) {
+                    // Just update the number of people in the current order
+                }
+            }
+        } else {
+            // We know there's an active order because of the check in handleTableSelect
+            // Just update the current active order with the table number and people
+            setTableNumber(tableId);
+            setOrderType('eat_in');
+            
+            // Update the current active order with the table number and people
+            saveCurrentOrderState();
+            
+            setActiveOrders(activeOrders.map(order => 
+                order.id === activeOrderId
+                    ? { 
+                        ...order, 
+                        type: 'eat_in',
+                        table_number: tableId,
+                        numberOfPeople: numberOfPeople
+                    }
+                    : order
+            ));
+        }
+        
+        // Switch to the Caisse tab
+        setActiveTab('caisse');
     };
 
     return (
@@ -1364,16 +1459,23 @@ const PosIndex = ({ auth }) => {
                                                         {tables.filter(table => parseInt(table.id) < 20).map(table => (
                                                             <div 
                                                                 key={table.id}
-                                                                onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
+                                                                onClick={() => handleTableSelect(table.id)}
                                                                 className={`relative ${
                                                                     table.status === 'occupied' 
                                                                         ? 'bg-red-400 border-red-600' 
                                                                         : 'bg-green-400 border-green-600'
                                                                 } ${
                                                                     parseInt(table.id) > 8 ? 'w-48 h-32' : 'w-32 h-32'
-                                                                } rounded-md flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
+                                                                } rounded-md flex flex-col items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
                                                             >
                                                                 <span className="text-2xl font-bold">{table.id}</span>
+                                                                
+                                                                {/* Show number of people if table is occupied */}
+                                                                {table.status === 'occupied' && (
+                                                                    <div className="mt-1 px-2 py-1 bg-white rounded-full text-xs font-medium">
+                                                                        {tableOccupancies[table.id] || 1} {tableOccupancies[table.id] === 1 ? 'person' : 'people'}
+                                                                    </div>
+                                                                )}
                                                                 
                                                                 {/* Table Chairs */}
                                                                 <div className="absolute -top-6 left-10 w-12 h-6 bg-blue-300 rounded-t-full"></div>
@@ -1400,14 +1502,22 @@ const PosIndex = ({ auth }) => {
                                                         {tables.filter(table => parseInt(table.id) >= 20).map(table => (
                                                             <div 
                                                                 key={table.id}
-                                                                onClick={() => table.status !== 'occupied' && handleTableSelect(table.id)}
+                                                                onClick={() => handleTableSelect(table.id)}
                                                                 className={`relative ${
                                                                     table.status === 'occupied' 
                                                                         ? 'bg-red-400 border-red-600' 
                                                                         : 'bg-green-400 border-green-600'
-                                                                } w-32 h-32 rounded-full flex items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
+                                                                } w-32 h-32 rounded-full flex flex-col items-center justify-center cursor-pointer shadow-md border-2 transition-transform transform hover:scale-105`}
                                                             >
                                                                 <span className="text-2xl font-bold">{table.id}</span>
+                                                                
+                                                                {/* Show number of people if table is occupied */}
+                                                                {table.status === 'occupied' && (
+                                                                    <div className="mt-1 px-2 py-1 bg-white rounded-full text-xs font-medium">
+                                                                        {tableOccupancies[table.id] || 1} {tableOccupancies[table.id] === 1 ? 'person' : 'people'}
+                                                                    </div>
+                                                                )}
+                                                                
                                                                 {/* Round Table Chairs */}
                                                                 <div className="absolute -top-6 left-12 w-8 h-8 bg-blue-300 rounded-full"></div>
                                                                 <div className="absolute top-12 -right-6 w-8 h-8 bg-blue-300 rounded-full"></div>
@@ -1515,6 +1625,15 @@ const PosIndex = ({ auth }) => {
                 onClose={() => setShowPaymentModal(false)}
                 onComplete={handlePayment}
                 total={total}
+            />
+
+            <TableOccupancyModal
+                isOpen={showTableOccupancyModal}
+                onClose={() => setShowTableOccupancyModal(false)}
+                onSave={handleTableOccupancySave}
+                tableId={selectedTableId}
+                initialPeople={tableOccupancies[selectedTableId] || 1}
+                isOccupied={isSelectedTableOccupied}
             />
 
             {/* Order History Log overlay */}
